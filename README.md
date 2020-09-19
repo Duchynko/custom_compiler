@@ -28,10 +28,10 @@ Single-declaration  ::= Type-denoter: Identifier ~ Expression
 Expression          ::= Single-expression
                     | Expression Operator Single-expression
 
-Single-expression	::= Integer-literal
-	                | Identifier
-	                | Boolean-literal
-	                | Operator Single-expression
+Single-expression   ::= Integer-literal
+                    | Identifier
+                    | Boolean-literal
+                    | Operator Single-expression
 
 Type-denoter        ::= Identifier
 ```
