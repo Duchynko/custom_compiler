@@ -53,17 +53,27 @@ class Scanner:
         elif self.current_char == SourceFile.EOT:
             return TokenType.EOT
 
+        elif self.current_char == '=':
+            self.take_it()
+            if self.current_char == '=':
+                self.take_it()
+                return TokenType.OPERATOR
+            else:
+                return TokenType.ERROR
+
         else:
             char = self.current_char
             self.take_it()
             return {
+                '~': TokenType.OPERATOR,
                 '+': TokenType.OPERATOR,
                 '-': TokenType.OPERATOR,
                 '/': TokenType.OPERATOR,
                 '*': TokenType.OPERATOR,
                 ';': TokenType.SEMICOLON,
                 '(': TokenType.LEFT_PAR,
-                ')': TokenType.RIGHT_PAR
+                ')': TokenType.RIGHT_PAR,
+                '"': TokenType.QUOTE
             }.get(char, TokenType.ERROR)
 
     def discard_separator(self):

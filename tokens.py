@@ -6,25 +6,26 @@ class TokenType(Enum):
     INTEGER_LITERAL = auto()
     BOOLEAN_LITERAL = auto()
     OPERATOR = auto()
-    FUNC = "func"
-    END = "end"
-    IF = "if"
-    THEN = "then"
-    ELSE = "else"
-    WHILE = "while"
-    RETURN = "return"
-    ECHO = "echo"
-    READ = "read"
-    LEFT_PAR = "("
-    RIGHT_PAR = "("
-    SEMICOLON = ";"
+    FUNC = 'func'
+    END = 'end'
+    IF = 'if'
+    THEN = 'then'
+    ELSE = 'else'
+    WHILE = 'while'
+    RETURN = 'return'
+    ECHO = 'echo'
+    READ = 'read'
+    LEFT_PAR = '('
+    RIGHT_PAR = '('
+    SEMICOLON = ';'
+    QUOTE = '"'
     EOT = auto()
     ERROR = auto()
 
 
-ASSIGNOPS: list(str) = ['~']
-ADDOPS: list(str) = ['+', '-']
-MULOPS: list(str) = ['/', '*']
+ASSIGNOPS: list = ['~']
+ADDOPS: list = ['+', '-']
+MULOPS: list = ['/', '*']
 KEYWORDS: list(TokenType) = [
     TokenType.FUNC, TokenType.END,
     TokenType.IF, TokenType.THEN,
