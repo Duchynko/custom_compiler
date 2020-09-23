@@ -23,7 +23,7 @@ class Scanner:
     def __init__(self, source):
         self.source = SourceFile(source)
         self.current_spelling: list(str) = []
-        self.current_char: str = self.source.get_next_char()
+        self.current_char = self.source.get_next_char()
 
     def scan(self) -> Token:
         """
@@ -35,7 +35,7 @@ class Scanner:
         self.current_spelling.clear()
         tokenType: TokenType = self.scan_token()
 
-        return Token(tokenType, self.current_spelling)
+        return Token(tokenType, "".join(self.current_spelling))
 
     def scan_token(self):
         if self.current_char.isalpha():
