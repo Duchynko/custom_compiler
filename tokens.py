@@ -35,7 +35,7 @@ KEYWORDS: list(TokenType) = [
 
 
 class Token():
-    def __init__(self, tokenType, spelling):
+    def __init__(self, tokenType: TokenType, spelling: str):
         self.tokenType: TokenType = tokenType
         self.spelling: str = spelling
 
@@ -45,4 +45,15 @@ class Token():
                 self.tokenType = TokenType(self.spelling)
 
     def is_assign_operator(self):
-        return True
+        return self.is_type_of_operator(ASSIGNOPS)
+
+    def is_mul_operator(self):
+        return self.is_type_of_operator(MULOPS)
+
+    def is_add_operator(self):
+        return self.is_type_of_operator(ADDOPS)
+
+    def is_type_of_operator(self, operators: list):
+        if self.tokenType == TokenType.OPERATOR:
+            return True if self.spelling in operators else False
+        return False
