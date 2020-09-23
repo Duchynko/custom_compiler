@@ -1,0 +1,9 @@
+ten ~ 10
+
+if ten == 11; then
+    echo "Wow"
+    return True
+else
+    echo "Damn"
+    return False
+end
