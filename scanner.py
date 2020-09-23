@@ -3,7 +3,7 @@ from tokens import TokenType, Token
 
 class SourceFile:
     EOL = '\n'
-    EOT = bytes(0)
+    EOT = ''
 
     def __init__(self, filename):
         try:
