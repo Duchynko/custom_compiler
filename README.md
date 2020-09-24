@@ -6,16 +6,14 @@
 
 Start symbol: Program
 
-```
+<pre>
 Program             ::= Command
 
-Command             ::= Single-command
-                    | Command; Single-command
+Command             ::= (Single-command)*
 
-Single-command      ::= Identifier ~ Expression
-                    | func Identifier(Expression) Command; end
-                    | if(Expression) then Command;
-                        else Command; end
+Single-command      ::= <b>Identifier ~</b> Expression
+                    | <b>func</b> <b>Identifier(</b>Expression<b>)</b> Command<b>; end</b>
+                    | <b>if(</b>Expression<b>) then</b> Command<b>;</b> (<b>else</b> Command<b>;</b>) <b>end</b>
                     | Declaration
                     | while(Expression) Command; end
 
@@ -64,4 +62,4 @@ read
 )
 ;
 ,
-```
+</pre>
