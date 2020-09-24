@@ -113,9 +113,9 @@ class TestScanner(unittest.TestCase):
 
 class TestSourceFile(unittest.TestCase):
     def test_init(self):
-        file = SourceFile('testfiles/testfile.txt')
+        file = SourceFile('example_files/testfile.txt')
 
-        self.assertEqual(file.source.name, 'testfiles/testfile.txt')
+        self.assertEqual(file.source.name, 'example_files/testfile.txt')
         file.source.close()
 
     def test_init_exit_if_file_dont_exist(self):
