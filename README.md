@@ -29,11 +29,11 @@ Single-expression   ::= <b>Integer-literal</b>
                     | <b>Operator</b> Single-expression
 
 Type-denoter        ::= <b>Identifier</b>
-```
+</pre>
 
 ## Tokens:
 
-```
+<pre>
 Identifier          ::= Letter(Letter|Digit)*
 
 Integer-literal     ::= Digit*
