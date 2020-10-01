@@ -1,12 +1,11 @@
 from scanner import SourceFile, Scanner
 from tokens import Token, TokenType
+from parser import Parser
 
 fileDir = './example_files/testprogram.txt'
 
 if __name__ == "__main__":
     scanner = Scanner(fileDir)
-    token = scanner.scan()
+    parser = Parser(scanner)
 
-    while token.tokenType != TokenType.EOT:
-        print(f"{token.tokenType}: {token.spelling}")
-        token = scanner.scan()
+    parser.parse_program()

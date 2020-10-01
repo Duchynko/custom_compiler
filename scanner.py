@@ -73,7 +73,9 @@ class Scanner:
                 ';': TokenType.SEMICOLON,
                 '(': TokenType.LEFT_PAR,
                 ')': TokenType.RIGHT_PAR,
-                '"': TokenType.QUOTE
+                '"': TokenType.QUOTE,
+                ':': TokenType.COLON,
+                ',': TokenType.COMMA
             }.get(char, TokenType.ERROR)
 
     def discard_separator(self):

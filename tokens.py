@@ -2,7 +2,6 @@ from enum import Enum, auto
 
 
 class TokenType(Enum):
-    IDENTIFIER = auto()
     INTEGER_LITERAL = auto()
     BOOLEAN_LITERAL = auto()
     OPERATOR = auto()
@@ -16,10 +15,13 @@ class TokenType(Enum):
     ECHO = 'echo'
     READ = 'read'
     LEFT_PAR = '('
-    RIGHT_PAR = '('
+    RIGHT_PAR = ')'
     SEMICOLON = ';'
+    COLON = ':'
     QUOTE = '"'
-    EOT = auto()
+    COMMA = ','
+    IDENTIFIER = auto()
+    EOT = ''
     ERROR = auto()
 
 
