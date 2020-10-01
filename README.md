@@ -12,16 +12,18 @@ Program             ::= Command
 Command             ::= Single-command*
 
 Single-command      ::= <b>Identifier ~</b> Expression
-                    | <b>func</b> <b>Identifier(</b>Expression<b>)</b> Command<b>; end</b>
                     | <b>if(</b>Expression<b>) then</b> Command<b>;</b> (ε | <b>else</b> Command<b>;</b>) <b>end</b>
                     | Declaration
                     | <b>while(</b>Expression<b>)</b> Command<b>; end</b>
+                    | <b>Identifier(</b>( ε | Single-Expression) (ε | ,Single-Expression*)<b>)</b>
+                    | <b>Expression</b>
 
 Declaration         ::= Single-declaration*
 
-Single-declaration  ::= Type-denoter: Identifier <b>~</b> (ε | Expression)
+Single-declaration  ::= Type-denoter Identifier (<b>~</b> Expression)<b>;</b>
+                    | <b>func</b> <b>Identifier(<b>( ε |Expression )<b>):</b> Command<b> end</b>
 
-Expression          ::= Single-expression (<b>Operator</b> Single-expression)
+Expression          ::= Single-expression (<b>Operator</b> Single-expression)*
 
 Single-expression   ::= <b>Integer-literal</b>
                     | <b>Identifier</b>
