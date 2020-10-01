@@ -1,9 +1,12 @@
-ten ~ 10
+int ten ~ 10;
 
-if ten == 11; then
-    echo "Wow"
-    return True
-else
-    echo "Damn"
-    return False
+func helloWorld(10):
+    int six ~ 6;
+end
+
+if (ten == 11):
+    int seven ~ 7;
+    return True;
+else:
+    return False;
 end
