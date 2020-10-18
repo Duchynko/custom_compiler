@@ -24,6 +24,15 @@ class Scanner:
         self.source = SourceFile(source)
         self.current_spelling: list(str) = []
         self.current_char = self.source.get_next_char()
+        self.current_line = 1
+        self.current_column = 0
+
+    def __count_position(self) -> None:
+        if self.current_char == '\n':
+            self.current_line = self.current_line + 1
+            self.current_column = 0
+        else:
+            self.current_column = self.current_column + 1
 
     def scan(self) -> Token:
         """
@@ -96,3 +105,4 @@ class Scanner:
     def take_it(self):
         self.current_spelling.append(self.current_char)
         self.current_char = str(self.source.get_next_char())
+        self.__count_position()
