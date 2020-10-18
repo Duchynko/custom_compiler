@@ -2,6 +2,21 @@ from tokens import Token
 from abc import ABC
 
 
+class UnexpectedEndOfProgramException(Exception):
+    """
+    An exception thrown when a program wasn't parsed successfully. This
+    happens if a parser won't find an EOT token at the end of a program.
+
+    Args:
+        current_token: current token parsed by a parser
+    """
+
+    def __init__(self, current_token: Token):
+        self.message = (f"Couldn't parse the program. A token {current_token.kind.name} "
+                        f"({current_token.spelling}) found after the end of the program")
+        super.__init__()
+
+
 class UnexpectedTokenException(Exception):
     """
     An exception thrown when a parser expects a different token kind 

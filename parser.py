@@ -3,7 +3,8 @@ from tokens import Kind as K
 from exceptions import (UnexpectedTokenException,
                         UnsupportedExpressionTokenException,
                         UnsupportedCommandTokenException,
-                        UnsupportedDeclarationTokenException)
+                        UnsupportedDeclarationTokenException,
+                        UnexpectedEndOfProgramException)
 
 
 class Parser():
@@ -15,7 +16,8 @@ class Parser():
         self.parse_command()
 
         if self.current_terminal.kind is not K.EOT:
-            print(f"Couldn't parse the program. A token found after end of program")
+            raise UnexpectedEndOfProgramException(self.current_terminal)
+        print(f"Successfully parsed the program.")
 
     def parse_command(self):
         while self.current_terminal.kind in [K.IDENTIFIER, K.FUNC,
