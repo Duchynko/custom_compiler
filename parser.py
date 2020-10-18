@@ -144,8 +144,8 @@ class Parser():
         else:
             # return False
             raise UnexpectedTokenException(
-                expected=token,
-                actual=self.current_terminal,
+                expected_kind=token,
+                current_token=self.current_terminal,
                 current_line=self.scanner.current_line,
                 current_column=self.scanner.current_column
             )

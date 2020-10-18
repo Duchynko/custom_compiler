@@ -1,4 +1,4 @@
-from tokens import Token
+from tokens import Token, Kind
 from abc import ABC
 
 
@@ -23,18 +23,18 @@ class UnexpectedTokenException(Exception):
     than the current terminal is.
 
     Args:
-        expected: token expected by parser
-        actual: actual supplied token
+        expected_kind: token kind expected by parser
+        current_token: actual supplied token
         current_line: line on which parser found an unexpected token
         current_column: column on which parser found an unexpected token
     """
 
-    def __init__(self, expected: Token, actual: Token, current_line: int, current_column: int):
+    def __init__(self, expected_kind: Kind, current_token: Token, current_line: int, current_column: int):
         self.line = current_line
         self.column = current_column
         self.message = (
             f"Error on line {current_line}, column {current_column}.\n"
-            f"Expected token {expected.kind.name}, got {actual.kind.name} ({actual.spelling})"
+            f"Expected token {expected_kind.name}, got {current_token.kind.name} ({current_token.spelling})"
         )
 
         super().__init__(self.message)
