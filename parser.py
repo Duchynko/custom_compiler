@@ -1,9 +1,9 @@
 from scanner import Scanner
 from tokens import Kind as K
 from exceptions import (UnexpectedTokenException,
-                        UnexpectedExpressionTokenException,
-                        UnexpectedCommandTokenException,
-                        UnexpectedDeclarationTokenException)
+                        UnsupportedExpressionTokenException,
+                        UnsupportedCommandTokenException,
+                        UnsupportedDeclarationTokenException)
 
 
 class Parser():
@@ -56,7 +56,7 @@ class Parser():
                 self.parse_expression()
                 self.accept(K.SEMICOLON)
         else:
-            raise UnexpectedCommandTokenException(
+            raise UnsupportedCommandTokenException(
                 current_token=self.current_terminal,
                 current_line=self.scanner.current_line,
                 current_column=self.scanner.current_column
@@ -88,7 +88,7 @@ class Parser():
                 self.accept(K.OPERATOR)
                 self.parse_expression()
         else:
-            raise UnexpectedDeclarationTokenException(
+            raise UnsupportedDeclarationTokenException(
                 current_token=self.current_terminal,
                 current_line=self.scanner.current_line,
                 current_column=self.scanner.current_column
@@ -125,7 +125,7 @@ class Parser():
             elif self.current_terminal.kind is K.OPERATOR:
                 self.parse_expression()
         else:
-            raise UnexpectedExpressionTokenException(
+            raise UnsupportedExpressionTokenException(
                 current_token=self.current_terminal,
                 current_line=self.scanner.current_line,
                 current_column=self.scanner.current_column
