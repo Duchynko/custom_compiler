@@ -1,5 +1,9 @@
 from scanner import Scanner
-from tokens import TokenType as T
+from tokens import Kind as K
+from exceptions import (UnexpectedTokenException,
+                        UnexpectedExpressionTokenException,
+                        UnexpectedCommandTokenException,
+                        UnexpectedDeclarationTokenException)
 
 
 class Parser():
@@ -10,112 +14,135 @@ class Parser():
     def parse_program(self):
         self.parse_command()
 
-        if self.current_terminal.tokenType is not T.EOT:
+        if self.current_terminal.kind is not K.EOT:
             print(f"Couldn't parse the program. A token found after end of program")
 
     def parse_command(self):
-        while self.current_terminal.tokenType in [T.IDENTIFIER, T.FUNC,
-                                                  T.IF, T.WHILE, T.RETURN]:
+        while self.current_terminal.kind in [K.IDENTIFIER, K.FUNC,
+                                             K.IF, K.WHILE, K.RETURN]:
             self.parse_single_command()
 
     def parse_single_command(self):
-        if self.current_terminal.tokenType is T.FUNC:
+        if self.current_terminal.kind is K.FUNC:
             self.parse_declaration()
-        elif self.current_terminal.tokenType is T.RETURN:
-            self.accept(T.RETURN)
+        elif self.current_terminal.kind is K.RETURN:
+            self.accept(K.RETURN)
             self.parse_expression()
-        elif self.current_terminal.tokenType is T.IF:
-            self.accept(T.IF)
-            self.accept(T.LEFT_PAR)
+        elif self.current_terminal.kind is K.IF:
+            self.accept(K.IF)
+            self.accept(K.LEFT_PAR)
             self.parse_expression()
-            self.accept(T.RIGHT_PAR)
-            self.accept(T.COLON)
+            self.accept(K.RIGHT_PAR)
+            self.accept(K.COLON)
             self.parse_command()
-            self.accept(T.SEMICOLON)
-            if self.current_terminal.tokenType is T.ELSE:
-                self.accept(T.ELSE)
-                self.accept(T.COLON)
+            if self.current_terminal.kind is K.ELSE:
+                self.accept(K.ELSE)
+                self.accept(K.COLON)
                 self.parse_command()
-                self.accept(T.SEMICOLON)
-            self.accept(T.END)
-        elif self.current_terminal.tokenType is T.WHILE:
-            self.accept(T.WHILE)
-            self.accept(T.LEFT_PAR)
+            self.accept(K.END)
+        elif self.current_terminal.kind is K.WHILE:
+            self.accept(K.WHILE)
+            self.accept(K.LEFT_PAR)
             self.parse_expression()
-            self.accept(T.RIGHT_PAR)
+            self.accept(K.RIGHT_PAR)
+            self.accept(K.COLON)
             self.parse_command()
-            self.accept(T.SEMICOLON)
-            self.accept(T.END)
-        elif self.current_terminal.tokenType is T.IDENTIFIER:
+            self.accept(K.END)
+        elif self.current_terminal.kind is K.IDENTIFIER:
             if self.current_terminal.spelling in ['int', 'str', 'bool']:
                 self.parse_declaration()
+                self.accept(K.SEMICOLON)
             else:
-                self.accept(T.IDENTIFIER)
-                # function call
-                if self.current_terminal.tokenType is T.LEFT_PAR:
-                    self.accept(T.LEFT_PAR)
-                    if self.current_terminal.tokenType in [T.IDENTIFIER, T.INTEGER_LITERAL, T.OPERATOR, T.BOOLEAN_LITERAL]:
-                        self.parse_single_expression()
-                        while self.current_terminal.tokenType is T.COMMA:
-                            self.accept(T.COMMA)
-                            self.parse_single_expression()
-                    self.accept(T.RIGHT_PAR)
+                self.parse_expression()
+                self.accept(K.SEMICOLON)
         else:
-            raise Exception(
-                f"Unexpected token {self.current_terminal.spelling}")
+            raise UnexpectedCommandTokenException(
+                current_token=self.current_terminal,
+                current_line=self.scanner.current_line,
+                current_column=self.scanner.current_column
+            )
 
     def parse_declaration(self):
-        while self.current_terminal.tokenType in [T.IDENTIFIER, T.FUNC]:
+        while (self.current_terminal.kind is K.FUNC
+                or self.current_terminal.spelling in ['int', 'str', 'bool']):
             self.parse_single_declaration()
 
     def parse_single_declaration(self):
-        if self.current_terminal.tokenType is T.IDENTIFIER:
-            self.accept(T.IDENTIFIER)  # type-denoter
-            self.accept(T.IDENTIFIER)
-            if self.current_terminal.tokenType is T.OPERATOR:
-                self.accept(T.OPERATOR)
-                self.parse_expression()
-            self.accept(T.SEMICOLON)
-        elif self.current_terminal.tokenType is T.FUNC:
-            self.accept(T.FUNC)
-            self.accept(T.IDENTIFIER)
-            self.accept(T.LEFT_PAR)
-            self.parse_expression()
-            self.accept(T.RIGHT_PAR)
-            self.accept(T.COLON)
+        if self.current_terminal.kind is K.FUNC:
+            self.accept(K.FUNC)
+            self.accept(K.IDENTIFIER)
+            self.accept(K.LEFT_PAR)
+            if self.current_terminal.kind in [K.IDENTIFIER, K.INTEGER_LITERAL, K.BOOLEAN_LITERAL]:
+                self.parse_single_expression()
+                while self.current_terminal.kind is K.COMMA:
+                    self.accept(K.COMMA)
+                    self.parse_single_expression()
+            self.accept(K.RIGHT_PAR)
+            self.accept(K.COLON)
             self.parse_command()
-            self.accept(T.END)
+            self.accept(K.END)
+        elif self.current_terminal.kind is K.IDENTIFIER:
+            self.parse_type_denoter()
+            self.accept(K.IDENTIFIER)
+            if self.current_terminal.kind is K.OPERATOR:
+                self.accept(K.OPERATOR)
+                self.parse_expression()
+        else:
+            raise UnexpectedDeclarationTokenException(
+                current_token=self.current_terminal,
+                current_line=self.scanner.current_line,
+                current_column=self.scanner.current_column
+            )
 
     def parse_expression(self):
         self.parse_single_expression()
-        while self.current_terminal.tokenType is T.OPERATOR:
+        while self.current_terminal.kind is K.OPERATOR:
             self.parse_single_expression()
 
     def parse_single_expression(self):
-        if self.current_terminal.tokenType is T.INTEGER_LITERAL:
-            self.accept(T.INTEGER_LITERAL)
-        elif self.current_terminal.tokenType is T.RETURN:
-            self.accept(T.RETURN)
-            self.accept(T.IDENTIFIER)
-        elif self.current_terminal.tokenType is T.BOOLEAN_LITERAL:
-            self.accept(T.BOOLEAN_LITERAL)
-        elif self.current_terminal.tokenType is T.OPERATOR:
-            self.accept(T.OPERATOR)
+        if self.current_terminal.kind is K.INTEGER_LITERAL:
+            self.accept(K.INTEGER_LITERAL)
+        elif self.current_terminal.kind is K.RETURN:
+            self.accept(K.RETURN)
+            self.accept(K.IDENTIFIER)
+        elif self.current_terminal.kind is K.BOOLEAN_LITERAL:
+            self.accept(K.BOOLEAN_LITERAL)
+        elif self.current_terminal.kind is K.OPERATOR:
+            self.accept(K.OPERATOR)
             self.parse_single_expression()
-        elif self.current_terminal.tokenType is T.IDENTIFIER:
-            self.accept(T.IDENTIFIER)
+        elif self.current_terminal.kind is K.IDENTIFIER:
+            self.accept(K.IDENTIFIER)
+            # identifier()
+            if self.current_terminal.kind is K.LEFT_PAR:
+                self.accept(K.LEFT_PAR)
+                if self.current_terminal.kind in [K.IDENTIFIER, K.INTEGER_LITERAL, K.OPERATOR, K.BOOLEAN_LITERAL]:
+                    self.parse_single_expression()
+                    while self.current_terminal.kind is K.COMMA:
+                        self.accept(K.COMMA)
+                        self.parse_single_expression()
+                self.accept(K.RIGHT_PAR)
+            # identifier ~ expression
+            elif self.current_terminal.kind is K.OPERATOR:
+                self.parse_expression()
         else:
-            raise Exception(
-                f"Unexpected expression token {self.current_terminal.spelling}")
+            raise UnexpectedExpressionTokenException(
+                current_token=self.current_terminal,
+                current_line=self.scanner.current_line,
+                current_column=self.scanner.current_column
+            )
 
     def parse_type_denoter(self):
-        self.accept(T.IDENTIFIER)
+        self.accept(K.IDENTIFIER)
 
-    def accept(self, token: T):
-        if self.current_terminal.tokenType is token:
+    def accept(self, token: K):
+        if self.current_terminal.kind is token:
             self.current_terminal = self.scanner.scan()
             return True
         else:
-            print(
-                f"Expected token {token}, got {self.current_terminal.spelling} ({self.current_terminal.tokenType})")
-            return False
+            # return False
+            raise UnexpectedTokenException(
+                expected=token,
+                actual=self.current_terminal,
+                current_line=self.scanner.current_line,
+                current_column=self.scanner.current_column
+            )

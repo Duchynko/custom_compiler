@@ -1,7 +1,7 @@
 from enum import Enum, auto
 
 
-class TokenType(Enum):
+class Kind(Enum):
     INTEGER_LITERAL = auto()
     BOOLEAN_LITERAL = auto()
     OPERATOR = auto()
@@ -28,23 +28,23 @@ class TokenType(Enum):
 ASSIGNOPS: list = ['~']
 ADDOPS: list = ['+', '-']
 MULOPS: list = ['/', '*']
-KEYWORDS: list(TokenType) = [
-    TokenType.FUNC, TokenType.END,
-    TokenType.IF, TokenType.THEN,
-    TokenType.ELSE, TokenType.WHILE,
-    TokenType.RETURN, TokenType.ECHO, TokenType.READ
+KEYWORDS: list(Kind) = [
+    Kind.FUNC, Kind.END,
+    Kind.IF, Kind.THEN,
+    Kind.ELSE, Kind.WHILE,
+    Kind.RETURN, Kind.ECHO, Kind.READ
 ]
 
 
 class Token():
-    def __init__(self, tokenType: TokenType, spelling: str):
-        self.tokenType: TokenType = tokenType
+    def __init__(self, kind: Kind, spelling: str):
+        self.kind: Kind = kind
         self.spelling: str = spelling
 
         # Check if and identifier is a keyword
-        if self.tokenType == TokenType.IDENTIFIER:
+        if self.kind == Kind.IDENTIFIER:
             if self.spelling in [k.value for k in KEYWORDS]:
-                self.tokenType = TokenType(self.spelling)
+                self.kind = Kind(self.spelling)
 
     def is_assign_operator(self):
         return self.is_type_of_operator(ASSIGNOPS)
@@ -56,6 +56,6 @@ class Token():
         return self.is_type_of_operator(ADDOPS)
 
     def is_type_of_operator(self, operators: list):
-        if self.tokenType == TokenType.OPERATOR:
+        if self.kind == Kind.OPERATOR:
             return True if self.spelling in operators else False
         return False

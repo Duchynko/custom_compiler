@@ -1,4 +1,4 @@
-from tokens import TokenType, Token
+from tokens import Kind, Token
 
 
 class SourceFile:
@@ -42,50 +42,50 @@ class Scanner:
             self.discard_separator()
 
         self.current_spelling.clear()
-        tokenType: TokenType = self.scan_token()
+        kind: Kind = self.scan_token()
 
-        return Token(tokenType, "".join(self.current_spelling))
+        return Token(kind, "".join(self.current_spelling))
 
     def scan_token(self):
         if self.current_char.isalpha():
             self.take_it()
             while self.current_char.isalpha() or self.current_char.isdigit():
                 self.take_it()
-            return TokenType.IDENTIFIER
+            return Kind.IDENTIFIER
 
         elif self.current_char.isdigit():
             self.take_it()
             while self.current_char.isdigit():
                 self.take_it()
-            return TokenType.INTEGER_LITERAL
+            return Kind.INTEGER_LITERAL
 
         elif self.current_char == SourceFile.EOT:
-            return TokenType.EOT
+            return Kind.EOT
 
         elif self.current_char == '=':
             self.take_it()
             if self.current_char == '=':
                 self.take_it()
-                return TokenType.OPERATOR
+                return Kind.OPERATOR
             else:
-                return TokenType.ERROR
+                return Kind.ERROR
 
         else:
             char = self.current_char
             self.take_it()
             return {
-                '~': TokenType.OPERATOR,
-                '+': TokenType.OPERATOR,
-                '-': TokenType.OPERATOR,
-                '/': TokenType.OPERATOR,
-                '*': TokenType.OPERATOR,
-                ';': TokenType.SEMICOLON,
-                '(': TokenType.LEFT_PAR,
-                ')': TokenType.RIGHT_PAR,
-                '"': TokenType.QUOTE,
-                ':': TokenType.COLON,
-                ',': TokenType.COMMA
-            }.get(char, TokenType.ERROR)
+                '~': Kind.OPERATOR,
+                '+': Kind.OPERATOR,
+                '-': Kind.OPERATOR,
+                '/': Kind.OPERATOR,
+                '*': Kind.OPERATOR,
+                ';': Kind.SEMICOLON,
+                '(': Kind.LEFT_PAR,
+                ')': Kind.RIGHT_PAR,
+                '"': Kind.QUOTE,
+                ':': Kind.COLON,
+                ',': Kind.COMMA
+            }.get(char, Kind.ERROR)
 
     def discard_separator(self):
         """
