@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, mock_open
 from scanner import Scanner, SourceFile
-from tokens import TokenType
+from tokens import Kind
 
 
 class TestScanner(unittest.TestCase):
@@ -64,7 +64,7 @@ class TestScanner(unittest.TestCase):
 
             token_type = scanner.scan_token()
 
-            self.assertEqual(token_type, TokenType.IDENTIFIER)
+            self.assertEqual(token_type, Kind.IDENTIFIER)
             self.assertEqual(''.join(scanner.current_spelling), 'Hello')
 
     def test_scan_token_letters_and_digits_return_identifier(self):
@@ -73,7 +73,7 @@ class TestScanner(unittest.TestCase):
 
             token_type = scanner.scan_token()
 
-            self.assertEqual(token_type, TokenType.IDENTIFIER)
+            self.assertEqual(token_type, Kind.IDENTIFIER)
 
     def test_scan_token_return_error_if_not_found(self):
         with patch('builtins.open', mock_open(read_data='_Hello')):
@@ -81,7 +81,7 @@ class TestScanner(unittest.TestCase):
 
             token = scanner.scan_token()
 
-            self.assertEqual(token, TokenType.ERROR)
+            self.assertEqual(token, Kind.ERROR)
 
     def test_scan_token_digits_return_int_literal(self):
         with patch('builtins.open', mock_open(read_data='123')):
@@ -89,7 +89,7 @@ class TestScanner(unittest.TestCase):
 
             token_type = scanner.scan_token()
 
-            self.assertEqual(token_type, TokenType.INTEGER_LITERAL)
+            self.assertEqual(token_type, Kind.INTEGER_LITERAL)
             self.assertEqual(''.join(scanner.current_spelling), '123')
 
     def test_scan_token_digits_return_eot_empty_file(self):
@@ -98,7 +98,7 @@ class TestScanner(unittest.TestCase):
 
             token_type = scanner.scan_token()
 
-            self.assertEqual(token_type, TokenType.EOT)
+            self.assertEqual(token_type, Kind.EOT)
 
     def test_scan_token_operators_return_operator(self):
         with patch('builtins.open', mock_open(read_data='*')):
@@ -107,7 +107,7 @@ class TestScanner(unittest.TestCase):
 
             token_type = scanner.scan_token()
 
-            self.assertEqual(token_type, TokenType.OPERATOR)
+            self.assertEqual(token_type, Kind.OPERATOR)
             scanner.source.source.close()
 
 
