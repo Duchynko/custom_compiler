@@ -1,12 +1,13 @@
 int ten ~ 10;
 
-func helloWorld(10):
+func helloWorld(ten, four):
     int six ~ 6;
+    six ~ six + 1;
 end
 
 if (ten == 11):
     int seven ~ 7;
-    return True;
+    return True
 else:
-    return False;
+    return False
 end
