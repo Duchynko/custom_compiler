@@ -28,9 +28,9 @@ ASSIGNOPS: list = ['~']
 ADDOPS: list = ['+', '-']
 MULOPS: list = ['/', '*']
 KEYWORDS: list(Kind) = [
-    Kind.FUNC, Kind.END,
-    Kind.ELSE, Kind.WHILE,
-    Kind.RETURN, Kind.ECHO, Kind.READ
+    Kind.FUNC, Kind.END, Kind.ELSE,
+    Kind.WHILE, Kind.IF, Kind.RETURN,
+    Kind.ECHO, Kind.READ
 ]
 
 
