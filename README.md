@@ -11,24 +11,26 @@ Program             ::= Command
 
 Command             ::= Single-command*
 
-Single-command      ::= <b>Identifier ~</b> Expression
-                    | <b>if(</b>Expression<b>) then</b> Command<b>;</b> (ε | <b>else</b> Command<b>;</b>) <b>end</b>
-                    | Declaration
-                    | <b>while(</b>Expression<b>)</b> Command<b>; end</b>
-                    | <b>Identifier(</b>( ε | Single-Expression) (ε | ,Single-Expression*)<b>)</b>
-                    | <b>Expression</b>
+Single-command      ::= <b>Identifier ~</b> Expression<b>;</b>
+                    | <b>if(</b>Expression<b>):</b> Command ( ε | <b>else</b> Command ) <b>end</b>
+                    | Declaration<b>;</b>
+                    | <b>while(</b>Expression<b>):</b> Command<b> end</b>
+                    | Expression<b>;</b>
 
 Declaration         ::= Single-declaration*
 
-Single-declaration  ::= Type-denoter Identifier (<b>~</b> Expression)<b>;</b>
-                    | <b>func</b> <b>Identifier(<b>( ε |Expression )<b>):</b> Command<b> end</b>
+Single-declaration  ::= Type-denoter <b>Identifier</b> ( ε | <b>~</b> Expression )<b>;</b>
+                    | <b>func</b> <b>Identifier(</b>( ε | Single-expression ( , Single-expression )* )<b>):</b> Command <b>end</b>
 
 Expression          ::= Single-expression (<b>Operator</b> Single-expression)*
 
 Single-expression   ::= <b>Integer-literal</b>
-                    | <b>Identifier</b>
                     | <b>Boolean-literal</b>
+                    | <b>Identifier</b>
+                    | <b>Identifier(</b>( ε | Single-Expression ( , Single-Expression )* )<b>)</b>
+                    | <b>Identifier ~</b> Expression
                     | <b>Operator</b> Single-expression
+                    | <b>return Identifier</b>
 
 Type-denoter        ::= <b>Identifier</b>
 </pre>
@@ -51,7 +53,6 @@ Operator            ::= ~ | + | - | * | / | ==
 func
 end
 if
-then
 else
 while
 return
@@ -59,6 +60,8 @@ echo
 read
 (
 )
+:
 ;
 ,
+"
 </pre>

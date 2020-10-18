@@ -8,7 +8,6 @@ class Kind(Enum):
     FUNC = 'func'
     END = 'end'
     IF = 'if'
-    THEN = 'then'
     ELSE = 'else'
     WHILE = 'while'
     RETURN = 'return'
@@ -30,7 +29,6 @@ ADDOPS: list = ['+', '-']
 MULOPS: list = ['/', '*']
 KEYWORDS: list(Kind) = [
     Kind.FUNC, Kind.END,
-    Kind.IF, Kind.THEN,
     Kind.ELSE, Kind.WHILE,
     Kind.RETURN, Kind.ECHO, Kind.READ
 ]

@@ -106,6 +106,7 @@ class Parser():
             self.accept(K.INTEGER_LITERAL)
         elif self.current_terminal.kind is K.RETURN:
             self.accept(K.RETURN)
+            # TODO: Add return Expression
             self.accept(K.IDENTIFIER)
         elif self.current_terminal.kind is K.BOOLEAN_LITERAL:
             self.accept(K.BOOLEAN_LITERAL)
