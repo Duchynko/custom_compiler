@@ -74,11 +74,7 @@ class Parser():
             self.accept(K.FUNC)
             self.accept(K.IDENTIFIER)
             self.accept(K.LEFT_PAR)
-            if self.current_terminal.kind in [K.IDENTIFIER, K.INTEGER_LITERAL, K.BOOLEAN_LITERAL]:
-                self.parse_single_expression()
-                while self.current_terminal.kind is K.COMMA:
-                    self.accept(K.COMMA)
-                    self.parse_single_expression()
+            self.parse_expressions_list()
             self.accept(K.RIGHT_PAR)
             self.accept(K.COLON)
             self.parse_command()
@@ -118,11 +114,7 @@ class Parser():
             # identifier()
             if self.current_terminal.kind is K.LEFT_PAR:
                 self.accept(K.LEFT_PAR)
-                if self.current_terminal.kind in [K.IDENTIFIER, K.INTEGER_LITERAL, K.OPERATOR, K.BOOLEAN_LITERAL]:
-                    self.parse_single_expression()
-                    while self.current_terminal.kind is K.COMMA:
-                        self.accept(K.COMMA)
-                        self.parse_single_expression()
+                self.parse_expressions_list()
                 self.accept(K.RIGHT_PAR)
             # identifier ~ expression
             elif self.current_terminal.kind is K.OPERATOR:
@@ -133,6 +125,13 @@ class Parser():
                 current_line=self.scanner.current_line,
                 current_column=self.scanner.current_column
             )
+
+    def parse_expressions_list(self):
+        if self.current_terminal.kind in [K.IDENTIFIER, K.INTEGER_LITERAL, K.OPERATOR, K.BOOLEAN_LITERAL]:
+            self.parse_expression()
+            while self.current_terminal.kind is K.COMMA:
+                self.accept(K.COMMA)
+                self.parse_expression()
 
     def parse_type_denoter(self):
         self.accept(K.IDENTIFIER)
