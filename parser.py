@@ -27,10 +27,24 @@ class Parser():
     def parse_single_command(self):
         if self.current_terminal.kind is K.FUNC:
             self.parse_declaration()
-        elif self.current_terminal.kind is K.RETURN:
-            self.accept(K.RETURN)
-            self.parse_expression()
-        elif self.current_terminal.kind is K.IF:
+        elif self.current_terminal.kind in [K.RETURN, K.IF, K.WHILE]:
+            self.parse_single_statement()
+        elif self.current_terminal.kind is K.IDENTIFIER:
+            if self.current_terminal.spelling in ['int', 'str', 'bool']:
+                self.parse_declaration()
+                self.accept(K.SEMICOLON)
+            else:
+                self.parse_single_statement()
+                self.accept(K.SEMICOLON)
+        else:
+            raise UnsupportedCommandTokenException(
+                current_token=self.current_terminal,
+                current_line=self.scanner.current_line,
+                current_column=self.scanner.current_column
+            )
+
+    def parse_single_statement(self):
+        if self.current_terminal.kind is K.IF:
             self.accept(K.IF)
             self.accept(K.LEFT_PAR)
             self.parse_expression()
@@ -50,19 +64,11 @@ class Parser():
             self.accept(K.COLON)
             self.parse_command()
             self.accept(K.END)
+        elif self.current_terminal.kind is K.RETURN:
+            self.accept(K.RETURN)
+            self.parse_expression()
         elif self.current_terminal.kind is K.IDENTIFIER:
-            if self.current_terminal.spelling in ['int', 'str', 'bool']:
-                self.parse_declaration()
-                self.accept(K.SEMICOLON)
-            else:
-                self.parse_expression()
-                self.accept(K.SEMICOLON)
-        else:
-            raise UnsupportedCommandTokenException(
-                current_token=self.current_terminal,
-                current_line=self.scanner.current_line,
-                current_column=self.scanner.current_column
-            )
+            self.parse_expression()
 
     def parse_declaration(self):
         while (self.current_terminal.kind is K.FUNC
