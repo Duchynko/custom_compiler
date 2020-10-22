@@ -1,5 +1,5 @@
 from scanner import Scanner
-from tokens import Kind as K
+from tokens import Kind as K, TYPE_DENOTERS, ASSIGNOPS
 from abstract_tree import *
 from exceptions import (UnexpectedTokenException,
                         UnsupportedExpressionTokenException,
@@ -22,11 +22,13 @@ class Parser():
         return Program(command=command)
 
     def parse_command(self) -> Command:
-        command = Command()
-        while self.current_terminal.kind in [K.IDENTIFIER, K.FUNC,
-                                             K.IF, K.WHILE, K.RETURN]:
-            command.commands.append(self.parse_single_command())
-        return command
+        valid_kinds = [K.IDENTIFIER, K.FUNC, K.IF,
+                       K.WHILE, K.RETURN] + TYPE_DENOTERS
+        commands = Command()
+        while self.current_terminal.kind in valid_kinds:
+            command = self.parse_single_command()
+            commands.commands.append(command)
+        return commands
 
     def parse_single_command(self) -> SingleCommand:
         if self.current_terminal.kind is K.FUNC:
@@ -38,14 +40,14 @@ class Parser():
             return StatementCommand(statement=statement)
 
         elif self.current_terminal.kind is K.IDENTIFIER:
-            if self.current_terminal.spelling in ['int', 'str', 'bool']:
-                declaration = self.parse_declaration()
-                self.accept(K.SEMICOLON)
-                return DeclarationCommand(declaration=declaration)
-            else:
                 statement = self.parse_single_statement()
                 self.accept(K.SEMICOLON)
                 return StatementCommand(statement=statement)
+
+        elif self.current_terminal.kind in TYPE_DENOTERS:
+            declaration = self.parse_declaration()
+            self.accept(K.SEMICOLON)
+            return DeclarationCommand(declaration=declaration)
 
         else:
             raise UnsupportedCommandTokenException(
@@ -97,8 +99,7 @@ class Parser():
 
     def parse_declaration(self):
         res = Declaration()
-        while (self.current_terminal.kind is K.FUNC
-                or self.current_terminal.spelling in ['int', 'str', 'bool']):
+        while (self.current_terminal.kind in [K.FUNC] + TYPE_DENOTERS):
             res.declarations.append(self.parse_single_declaration())
         return res
 
@@ -119,7 +120,7 @@ class Parser():
                 commands=commands
             )
 
-        elif self.current_terminal.kind is K.IDENTIFIER:
+        elif self.current_terminal.kind in [K.STRING_TYPE, K.INTEGER_TYPE, K.BOOLEAN_TYPE]:
             type_denoter = self.parse_type_denoter()
             identifier = self.parse_identifier()
             if self.current_terminal.kind is K.OPERATOR:
@@ -206,8 +207,10 @@ class Parser():
             return exp_list
 
     def parse_type_denoter(self):
-        spelling = self.parse_identifier()
-        return TypeDenoter(spelling=spelling)
+        if self.current_terminal.kind in TYPE_DENOTERS:
+            type_denoter = TypeDenoter(spelling=self.current_terminal.spelling)
+            self.current_terminal = self.scanner.scan()
+            return type_denoter
 
     def parse_integer_literal(self) -> IntegerLiteral:
         if self.current_terminal.kind is K.INTEGER_LITERAL:

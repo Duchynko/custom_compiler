@@ -4,6 +4,9 @@ from enum import Enum, auto
 class Kind(Enum):
     INTEGER_LITERAL = auto()
     OPERATOR = auto()
+    STRING_TYPE = 'str'
+    BOOLEAN_TYPE = 'bool'
+    INTEGER_TYPE = 'int'
     TRUE = 'true'
     FALSE = 'false'
     FUNC = 'func'
@@ -32,7 +35,12 @@ KEYWORDS: list(Kind) = [
     Kind.FUNC, Kind.END, Kind.ELSE,
     Kind.WHILE, Kind.IF, Kind.RETURN,
     Kind.ECHO, Kind.READ, Kind.TRUE,
-    Kind.FALSE
+    Kind.FALSE, Kind.STRING_TYPE,
+    Kind.INTEGER_TYPE, Kind.BOOLEAN_TYPE
+]
+TYPE_DENOTERS: list(Kind) = [
+    Kind.STRING_TYPE, Kind.INTEGER_TYPE,
+    Kind.BOOLEAN_TYPE
 ]
 
 
