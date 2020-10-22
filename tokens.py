@@ -3,8 +3,9 @@ from enum import Enum, auto
 
 class Kind(Enum):
     INTEGER_LITERAL = auto()
-    BOOLEAN_LITERAL = auto()
     OPERATOR = auto()
+    TRUE = 'true'
+    FALSE = 'false'
     FUNC = 'func'
     END = 'end'
     IF = 'if'
@@ -30,7 +31,8 @@ MULOPS: list = ['/', '*']
 KEYWORDS: list(Kind) = [
     Kind.FUNC, Kind.END, Kind.ELSE,
     Kind.WHILE, Kind.IF, Kind.RETURN,
-    Kind.ECHO, Kind.READ
+    Kind.ECHO, Kind.READ, Kind.TRUE,
+    Kind.FALSE
 ]
 
 

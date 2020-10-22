@@ -32,9 +32,11 @@ class Parser():
         if self.current_terminal.kind is K.FUNC:
             declaration = self.parse_declaration()
             return DeclarationCommand(declaration=declaration)
+
         elif self.current_terminal.kind in [K.RETURN, K.IF, K.WHILE]:
             statement = self.parse_single_statement()
             return StatementCommand(statement=statement)
+
         elif self.current_terminal.kind is K.IDENTIFIER:
             if self.current_terminal.spelling in ['int', 'str', 'bool']:
                 declaration = self.parse_declaration()
@@ -44,6 +46,7 @@ class Parser():
                 statement = self.parse_single_statement()
                 self.accept(K.SEMICOLON)
                 return StatementCommand(statement=statement)
+
         else:
             raise UnsupportedCommandTokenException(
                 current_token=self.current_terminal,
@@ -69,6 +72,7 @@ class Parser():
                 ifCom=ifBlock,
                 elseCom=elseBlock
             )
+
         elif self.current_terminal.kind is K.WHILE:
             self.accept(K.WHILE)
             self.accept(K.LEFT_PAR)
@@ -81,10 +85,12 @@ class Parser():
                 expr=expression,
                 command=command
             )
+
         elif self.current_terminal.kind is K.RETURN:
             self.accept(K.RETURN)
             expression = self.parse_single_expression()
             return ReturnStatement(expression)
+
         elif self.current_terminal.kind is K.IDENTIFIER:
             expressions = self.parse_expression()
             return ExpressionStatement(expressions=expressions)
@@ -152,8 +158,8 @@ class Parser():
             literal = self.parse_integer_literal()
             return IntLiteralExpression(literal=literal)
 
-        elif self.current_terminal.kind is K.BOOLEAN_LITERAL:
-            boolean = self.parse_identifier()  # TODO: parse_boolean?
+        elif self.current_terminal.kind in [K.TRUE, K.FALSE]:
+            boolean = self.parse_boolean()
             return BooleanLiteralExpression(literal=boolean)
 
         elif self.current_terminal.kind is K.OPERATOR:
@@ -190,7 +196,7 @@ class Parser():
             )
 
     def parse_expressions_list(self):
-        if self.current_terminal.kind in [K.IDENTIFIER, K.INTEGER_LITERAL, K.OPERATOR, K.BOOLEAN_LITERAL]:
+        if self.current_terminal.kind in [K.IDENTIFIER, K.INTEGER_LITERAL, K.OPERATOR, K.TRUE, K.FALSE]:
             exp_list = ExpressionsList()
             expression = self.parse_expression()
             exp_list.expressions.append(expression)
@@ -214,6 +220,11 @@ class Parser():
             identifier = Identifier(self.current_terminal.spelling)
             self.current_terminal = self.scanner.scan()
             return identifier
+
+    def parse_boolean(self) -> BooleanLiteral:
+        if self.current_terminal.kind in [K.TRUE, K.FALSE]:
+            value = BooleanLiteral(spelling=self.current_terminal.spelling)
+            return value
 
     def parse_operator(self) -> Operator:
         if self.current_terminal.kind is K.OPERATOR:
