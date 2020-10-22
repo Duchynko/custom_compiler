@@ -1,5 +1,5 @@
-from ast import AST
-from command import Command
+from .ast import AST
+from .commands import Command
 
 
 class Program(AST):

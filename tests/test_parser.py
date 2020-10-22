@@ -121,7 +121,7 @@ class TestParser(unittest.TestCase):
             self.assertEqual(p.current_terminal.kind,
                              Kind.EOT)
 
-    def test_parse_expression_multiple_operator_and_integers(self):
+    def test_parse_expressions_operator_and_integers(self):
         with patch('builtins.open', mock_open(read_data='5+4+3')):
             s = Scanner('file')
             p = Parser(s)
@@ -132,7 +132,7 @@ class TestParser(unittest.TestCase):
             self.assertEqual(p.current_terminal.kind,
                              Kind.EOT)
 
-    def test_parse_expression_multiple_operator_integer_and_string(self):
+    def test_parse_expressions_operator_integer_and_string(self):
         with patch('builtins.open', mock_open(read_data='5+five')):
             s = Scanner('file')
             p = Parser(s)
@@ -143,7 +143,7 @@ class TestParser(unittest.TestCase):
             self.assertEqual(p.current_terminal.kind,
                              Kind.EOT)
 
-    def test_parse_expression_multiple_integer_identifier_operator(self):
+    def test_parse_expressions_integer_identifier_operator(self):
         with patch('builtins.open', mock_open(read_data='5+five+-10')):
             s = Scanner('file')
             p = Parser(s)

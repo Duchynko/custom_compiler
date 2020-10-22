@@ -4,4 +4,4 @@ from .single_command import SingleCommand
 
 class Command(AST):
     def __init__(self):
-        self.commands: list(SingleCommand)
+        self.commands: list(SingleCommand) = []
