@@ -14,7 +14,7 @@ class UnexpectedEndOfProgramException(Exception):
     def __init__(self, current_token: Token):
         self.message = (f"Couldn't parse the program. A token {current_token.kind.name} "
                         f"({current_token.spelling}) found after the end of the program")
-        super.__init__()
+        super().__init__(self.message)
 
 
 class UnexpectedTokenException(Exception):
@@ -65,7 +65,8 @@ class UnsupportedExpressionTokenException(UnsupportedTokenException):
     """
 
     def __init__(self, current_token: Token, current_line: int, current_column: int):
-        super().__init__(symbol_type='expression')
+        super().__init__(symbol_type='expression', current_token=current_token,
+                         current_line=current_line, current_column=current_column)
 
 
 class UnsupportedCommandTokenException(UnsupportedTokenException):
@@ -80,7 +81,8 @@ class UnsupportedCommandTokenException(UnsupportedTokenException):
     """
 
     def __init__(self, current_token: Token, current_line: int, current_column: int):
-        super().__init__(symbol_type='command')
+        super().__init__(symbol_type='command', current_token=current_token,
+                         current_line=current_line, current_column=current_column)
 
 
 class UnsupportedDeclarationTokenException(UnsupportedTokenException):
@@ -95,4 +97,5 @@ class UnsupportedDeclarationTokenException(UnsupportedTokenException):
     """
 
     def __init__(self, current_token: Token, current_line: int, current_column: int):
-        super().__init__(symbol_type='declaration')
+        super().__init__(symbol_type='declaration', current_token=current_token,
+                         current_line=current_line, current_column=current_column)
