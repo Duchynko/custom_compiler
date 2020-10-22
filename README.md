@@ -14,8 +14,7 @@ Command             ::= Single-command*
 Single-command      ::= Single-statement
                     | Declaration
 
-Single-statement    ::= <b>Identifier ~</b> Expression<b>;</b>
-                    | <b>if(</b>Expression<b>):</b> Command ( ε | <b>else</b> Command ) <b>end</b>
+Single-statement    ::= <b>if(</b>Expression<b>):</b> Command ( ε | <b>else</b> Command ) <b>end</b>
                     | <b>while(</b>Expression<b>):</b> Command<b> end</b>
                     | Expression<b>;</b>
 
@@ -32,7 +31,7 @@ Single-expression   ::= <b>Integer-literal</b>
                     | <b>Boolean-literal</b>
                     | <b>Identifier</b>
                     | <b>Identifier(</b>( ε | Expression-list )<b>)</b>
-                    | <b>Identifier ~</b> Expression
+                    | <b>Identifier ~</b> Expression<b>;</b>
                     | <b>Operator</b> Single-expression
                     | <b>return Identifier</b>
 
