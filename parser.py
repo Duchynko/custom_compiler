@@ -40,9 +40,9 @@ class Parser():
             return StatementCommand(statement=statement)
 
         elif self.current_terminal.kind is K.IDENTIFIER:
-                statement = self.parse_single_statement()
-                self.accept(K.SEMICOLON)
-                return StatementCommand(statement=statement)
+            statement = self.parse_single_statement()
+            self.accept(K.SEMICOLON)
+            return StatementCommand(statement=statement)
 
         elif self.current_terminal.kind in TYPE_DENOTERS:
             declaration = self.parse_declaration()
@@ -177,7 +177,7 @@ class Parser():
                 self.accept(K.RIGHT_PAR)
                 return CallExpression(name=identifier, args=expressions_list)
             # identifier ~ expression
-            elif self.current_terminal.kind is K.OPERATOR:
+            elif self.current_terminal.kind in ASSIGNOPS:
                 variable = VarExpression(identifier)
                 operator = self.parse_operator()
                 expression = self.parse_expression()
