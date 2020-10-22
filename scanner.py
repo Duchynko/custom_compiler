@@ -46,7 +46,10 @@ class Scanner:
 
         return Token(kind, "".join(self.current_spelling))
 
-    def scan_token(self):
+    def scan_token(self) -> Kind:
+        """
+        Scans through the current character(s) and returns it's kind
+        """
         if self.current_char.isalpha():
             self.take_it()
             while self.current_char.isalpha() or self.current_char.isdigit():
@@ -89,8 +92,8 @@ class Scanner:
 
     def discard_separator(self):
         """
-        Checks the current character and moves the pointer to the next one, or
-        if the curret character is a comment symbol (#), moves the pointer to a new line.
+        Discards the current character and moves the pointer to the next one, or if the
+        curret character is a comment symbol (#), moves the pointer to the next line.
         """
         if self.current_char == '#':
             self.take_it()
