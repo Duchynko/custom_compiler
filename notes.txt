@@ -1,0 +1,1 @@
+Why in checker.py use identifier = x.identifier.visit() instead of just xd.identifier.spelling?

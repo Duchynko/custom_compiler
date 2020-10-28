@@ -1,4 +1,4 @@
-from .command import Command
+from .commandlist import CommandList
 from .declaration_command import DeclarationCommand
-from .single_command import SingleCommand
+from .abstract_command import AbstractCommand
 from .statement_command import StatementCommand

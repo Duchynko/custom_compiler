@@ -1,3 +1,4 @@
-from .declaration import Declaration
+from .declarationlist import DeclarationList
 from .func_declaration import FuncDeclaration
+from .abstract_declaration import AbstractDeclaration
 from .var_declaration import VarDeclaration, VarDeclarationWithAssignment

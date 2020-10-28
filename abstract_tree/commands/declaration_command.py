@@ -1,8 +1,11 @@
-from ..ast import AST
-from .single_command import SingleCommand
-from ..declarations.declaration import Declaration
+from .abstract_command import AbstractCommand
+from ..declarations.declarationlist import DeclarationList
+from ..visitor import Visitor
 
 
-class DeclarationCommand(SingleCommand):
-    def __init__(self, declaration: Declaration):
+class DeclarationCommand(AbstractCommand):
+    def __init__(self, declaration: DeclarationList):
         self.declaration = declaration
+
+    def visit(self, v: Visitor) -> object:
+        return v.visit_declaration_command(self)

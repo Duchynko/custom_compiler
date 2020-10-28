@@ -4,10 +4,10 @@ from scanner import Scanner, SourceFile
 from parser import Parser
 from tokens import Kind, TYPE_DENOTERS
 from exceptions import UnsupportedExpressionTokenException
-from abstract_tree import (TypeDenoter, IntLiteralExpression, VarExpression,
+from abstract_tree import (TypeIndicator, IntLiteralExpression, VarExpression,
                            UnaryExpression, VarDeclarationWithAssignment,
                            FuncDeclaration, VarDeclaration, StatementCommand,
-                           DeclarationCommand, Command, Program,
+                           DeclarationCommand, CommandList, Program,
                            BinaryExpression)
 import json
 from itertools import chain
@@ -52,7 +52,7 @@ class TestParser(unittest.TestCase):
 
             type_d = p.parse_type_denoter()
 
-            self.assertTrue(isinstance(type_d, TypeDenoter))
+            self.assertTrue(isinstance(type_d, TypeIndicator))
             self.assertEqual(type_d.spelling, 'int')
             self.assertEqual(p.current_terminal.kind,
                              Kind.EOT)
@@ -387,7 +387,7 @@ class TestParser(unittest.TestCase):
 
             command = p.parse_command()
 
-            self.assertTrue(isinstance(command, Command))
+            self.assertTrue(isinstance(command, CommandList))
             self.assertTrue(all(isinstance(c, StatementCommand)
                                 for c in command.commands))
             self.assertEqual(
@@ -400,7 +400,7 @@ class TestParser(unittest.TestCase):
 
             command = p.parse_command()
 
-            self.assertTrue(isinstance(command, Command))
+            self.assertTrue(isinstance(command, CommandList))
             self.assertTrue(all(isinstance(c, DeclarationCommand)
                                 for c in command.commands))
             self.assertEqual(

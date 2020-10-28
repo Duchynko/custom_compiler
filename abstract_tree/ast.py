@@ -1,5 +1,9 @@
-from abc import ABC
+from abc import ABC, abstractmethod
+from .visitor import Visitor
 
 
 class AST(ABC):
-    pass
+    @abstractmethod
+    def visit(self, v: Visitor) -> object:
+        pass
+

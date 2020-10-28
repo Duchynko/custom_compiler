@@ -1,11 +1,15 @@
-from .declaration import Declaration
-from ..expressions.expressions_list import ExpressionsList
-from ..commands.command import Command
+from abstract_tree import AbstractDeclaration
+from ..commands.commandlist import CommandList
+from ..expressions.arguments_list import ArgumentsList
 from ..terminals.identifier import Identifier
+from ..visitor import Visitor
 
 
-class FuncDeclaration(Declaration):
-    def __init__(self, identifier: Identifier, args: ExpressionsList, commands: Command):
+class FuncDeclaration(AbstractDeclaration):
+    def __init__(self, identifier: Identifier, args: ArgumentsList, commands: CommandList):
         self.identifier = identifier
         self.args = args
         self.commands = commands
+
+    def visit(self, v: Visitor) -> object:
+        return v.visit_func_declaration(self)

@@ -1,8 +1,10 @@
+from abstract_tree.visitor import Visitor
 from .terminal import Terminal
 
 
 class BooleanLiteral(Terminal):
-    # self.values = ['true', 'false']
-
     def __init__(self, spelling: str):
-        self.spelling = spelling
+        super().__init__(spelling)
+
+    def visit(self, v: Visitor) -> object:
+        return v.visit_boolean_literal(self)

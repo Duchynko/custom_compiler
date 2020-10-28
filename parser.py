@@ -21,16 +21,16 @@ class Parser():
         print(f"Successfully parsed the program.")
         return Program(command=command)
 
-    def parse_command(self) -> Command:
+    def parse_command(self) -> CommandList:
         valid_kinds = [K.IDENTIFIER, K.FUNC, K.IF,
                        K.WHILE, K.RETURN] + TYPE_DENOTERS
-        commands = Command()
+        commands = CommandList()
         while self.current_terminal.kind in valid_kinds:
             command = self.parse_single_command()
             commands.commands.append(command)
         return commands
 
-    def parse_single_command(self) -> SingleCommand:
+    def parse_single_command(self) -> AbstractCommand:
         if self.current_terminal.kind is K.FUNC:
             declaration = self.parse_declaration()
             return DeclarationCommand(declaration=declaration)
@@ -71,8 +71,8 @@ class Parser():
             self.accept(K.END)
             return IfStatement(
                 expr=expression,
-                ifCom=ifBlock,
-                elseCom=elseBlock
+                if_com=ifBlock,
+                else_com=elseBlock
             )
 
         elif self.current_terminal.kind is K.WHILE:
@@ -98,7 +98,7 @@ class Parser():
             return ExpressionStatement(expressions=expressions)
 
     def parse_declaration(self):
-        res = Declaration()
+        res = DeclarationList()
         while (self.current_terminal.kind in [K.FUNC] + TYPE_DENOTERS):
             res.declarations.append(self.parse_single_declaration())
         return res
@@ -127,13 +127,13 @@ class Parser():
                 operator = self.parse_operator()
                 expression = self.parse_expression()
                 return VarDeclarationWithAssignment(
-                    type_denoter=type_denoter,
+                    type_indicator=type_denoter,
                     identifier=identifier,
                     operator=operator,
                     expression=expression)
             else:
                 return VarDeclaration(
-                    type_denoter=type_denoter,
+                    type_indicator=type_denoter,
                     identifier=identifier)
 
         else:
@@ -198,7 +198,7 @@ class Parser():
 
     def parse_expressions_list(self):
         if self.current_terminal.kind in [K.IDENTIFIER, K.INTEGER_LITERAL, K.OPERATOR, K.TRUE, K.FALSE]:
-            exp_list = ExpressionsList()
+            exp_list = ArgumentsList()
             expression = self.parse_expression()
             exp_list.expressions.append(expression)
             while self.current_terminal.kind is K.COMMA:
@@ -208,7 +208,7 @@ class Parser():
 
     def parse_type_denoter(self):
         if self.current_terminal.kind in TYPE_DENOTERS:
-            type_denoter = TypeDenoter(spelling=self.current_terminal.spelling)
+            type_denoter = TypeIndicator(spelling=self.current_terminal.spelling)
             self.current_terminal = self.scanner.scan()
             return type_denoter
 
