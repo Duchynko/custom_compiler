@@ -1,3 +1,5 @@
+from typing import List
+
 from tokens import Kind, Token
 
 
@@ -20,9 +22,9 @@ class SourceFile:
 
 
 class Scanner:
-    def __init__(self, source):
+    def __init__(self, source: str):
         self.source = SourceFile(source)
-        self.current_spelling: list(str) = []
+        self.current_spelling: List[str] = []
         self.current_char = self.source.get_next_char()
         self.current_line = 1
         self.current_column = 0

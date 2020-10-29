@@ -1,11 +1,13 @@
-from abstract_tree.visitor import Visitor
+from __future__ import annotations
+
 from .abstract_statement import AbstractStatement
 from ..expressions.abstract_expression import AbstractExpression
+from ..visitor import Visitor
 
 
 class ReturnStatement(AbstractStatement):
     def __init__(self, expression: AbstractExpression):
         self.expression = expression
 
-    def visit(self, v: Visitor) -> object:
-        return v.visit_return_statement(self)
+    def visit(self, visitor: Visitor) -> object:
+        return visitor.visit_return_statement(self)

@@ -1,13 +1,15 @@
+from __future__ import annotations
+
 from abc import abstractmethod, ABCMeta
 
-from abstract_tree.visitor import Visitor
-from ..ast import AST
+from ..abstract_syntax_tree import AbstractSyntaxTree
+from ..visitor import Visitor
 
 
-class Terminal(AST, metaclass=ABCMeta):
+class Terminal(AbstractSyntaxTree, metaclass=ABCMeta):
     def __init__(self, spelling: str):
         self.spelling = spelling
 
     @abstractmethod
-    def visit(self, v: Visitor) -> object:
+    def visit(self, visitor: Visitor) -> object:
         pass

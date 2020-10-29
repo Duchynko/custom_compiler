@@ -1,9 +1,11 @@
-from abstract_tree import AbstractDeclaration
+from __future__ import annotations
+
+from ..visitor import Visitor
+from .abstract_declaration import AbstractDeclaration
 from ..expressions.expression_list import ExpressionList
 from ..terminals.identifier import Identifier
 from ..terminals.operator import Operator
 from ..terminals.type_indicator import TypeIndicator
-from ..visitor import Visitor
 
 
 class VarDeclaration(AbstractDeclaration):
@@ -11,8 +13,8 @@ class VarDeclaration(AbstractDeclaration):
         self.identifier = identifier
         self.type_indicator = type_indicator
 
-    def visit(self, v: Visitor) -> object:
-        return v.visit_var_declaration(self)
+    def visit(self, visitor: Visitor) -> object:
+        return visitor.visit_var_declaration(self)
 
 
 class VarDeclarationWithAssignment(AbstractDeclaration):
@@ -22,5 +24,7 @@ class VarDeclarationWithAssignment(AbstractDeclaration):
         self.operator = operator
         self.expression = expression
 
-    def visit(self, v: Visitor) -> object:
-        return v.visit_var_declaration_with_assignment(self)
+    def visit(self, visitor: Visitor) -> object:
+        return visitor.visit_var_declaration_with_assignment(self)
+
+

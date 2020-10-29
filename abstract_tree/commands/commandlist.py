@@ -1,13 +1,15 @@
+from __future__ import annotations
+
 from typing import List
 
-from ..ast import AST
 from .abstract_command import AbstractCommand
+from ..abstract_syntax_tree import AbstractSyntaxTree
 from ..visitor import Visitor
 
 
-class CommandList(AST):
+class CommandList(AbstractSyntaxTree):
     def __init__(self):
         self.commands: List[AbstractCommand] = []
 
-    def visit(self, v: Visitor) -> object:
-        return v.visit_command_list(self)
+    def visit(self, visitor: Visitor) -> object:
+        return visitor.visit_command_list(self)

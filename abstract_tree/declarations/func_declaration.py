@@ -1,4 +1,6 @@
-from abstract_tree import AbstractDeclaration
+from __future__ import annotations
+
+from .abstract_declaration import AbstractDeclaration
 from ..commands.commandlist import CommandList
 from ..expressions.arguments_list import ArgumentsList
 from ..terminals.identifier import Identifier
@@ -11,5 +13,5 @@ class FuncDeclaration(AbstractDeclaration):
         self.args = args
         self.commands = commands
 
-    def visit(self, v: Visitor) -> object:
-        return v.visit_func_declaration(self)
+    def visit(self, visitor: Visitor) -> object:
+        return visitor.visit_func_declaration(self)

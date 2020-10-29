@@ -1,13 +1,15 @@
+from __future__ import annotations
+
 from typing import List
 
-from abstract_tree.visitor import Visitor
-from ..ast import AST
 from .expression_list import ExpressionList
+from ..abstract_syntax_tree import AbstractSyntaxTree
+from ..visitor import Visitor
 
 
-class ArgumentsList(AST):
+class ArgumentsList(AbstractSyntaxTree):
     def __init__(self):
         self.expressions: List[ExpressionList] = []
 
-    def visit(self, v: Visitor) -> object:
-        return v.visit_arguments_list(self)
+    def visit(self, visitor: Visitor) -> object:
+        return visitor.visit_arguments_list(self)

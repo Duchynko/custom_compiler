@@ -1,11 +1,13 @@
+from __future__ import annotations
+
 from abc import ABCMeta, abstractmethod
 
-from abstract_tree.visitor import Visitor
-from ..ast import AST
+from ..visitor import Visitor
+from ..abstract_syntax_tree import AbstractSyntaxTree
 
 
-class AbstractDeclaration(AST, metaclass=ABCMeta):
+class AbstractDeclaration(AbstractSyntaxTree, metaclass=ABCMeta):
     @abstractmethod
-    def visit(self, v: Visitor) -> object:
+    def visit(self, visitor: Visitor) -> object:
         pass
 

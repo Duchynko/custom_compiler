@@ -1,6 +1,6 @@
 from typing import Optional, List
 
-from abstract_tree import AbstractDeclaration
+from abstract_tree.declarations import AbstractDeclaration
 
 
 class IdEntry:

@@ -1,6 +1,8 @@
-from abstract_tree.visitor import Visitor
+from __future__ import annotations
+
 from .abstract_expression import AbstractExpression
 from ..terminals.operator import Operator
+from ..visitor import Visitor
 
 
 class UnaryExpression(AbstractExpression):
@@ -8,5 +10,5 @@ class UnaryExpression(AbstractExpression):
         self.operator = operator
         self.expression = expression
 
-    def visit(self, v: Visitor) -> object:
-        return v.visit_unary_expression(self)
+    def visit(self, visitor: Visitor) -> object:
+        return visitor.visit_unary_expression(self)

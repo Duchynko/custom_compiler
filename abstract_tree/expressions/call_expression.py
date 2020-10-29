@@ -1,7 +1,9 @@
-from .abstract_expression import AbstractExpression
-from ..terminals.identifier import Identifier
-from .arguments_list import ArgumentsList
+from __future__ import annotations
+
 from ..visitor import Visitor
+from .abstract_expression import AbstractExpression
+from .arguments_list import ArgumentsList
+from ..terminals.identifier import Identifier
 
 
 class CallExpression(AbstractExpression):
@@ -9,5 +11,5 @@ class CallExpression(AbstractExpression):
         self.name = name
         self.args = args
 
-    def visit(self, v: Visitor) -> object:
-        return v.visit_call_expression(self)
+    def visit(self, visitor: Visitor) -> object:
+        return visitor.visit_call_expression(self)

@@ -1,13 +1,13 @@
 from typing import List
 
-from abstract_tree import ArgumentsList, VarExpression, IntLiteralExpression, BooleanLiteralExpression, \
-    UnaryExpression, CallExpression, BinaryExpression
 from abstract_tree.commands import CommandList, DeclarationCommand, StatementCommand
 from abstract_tree.declarations import DeclarationList, FuncDeclaration, VarDeclaration, VarDeclarationWithAssignment
+from abstract_tree.expressions import BinaryExpression, CallExpression, UnaryExpression, BooleanLiteralExpression, \
+    IntLiteralExpression, VarExpression, ArgumentsList
 from abstract_tree.expressions.expression_list import ExpressionList
 from abstract_tree.program import Program
 from abstract_tree.statements import IfStatement, ExpressionStatement, WhileStatement, ReturnStatement
-from abstract_tree.terminals import Terminal, BooleanLiteral, Identifier, IntegerLiteral, Operator, TypeIndicator
+from abstract_tree.terminals import BooleanLiteral, Identifier, IntegerLiteral, Operator, TypeIndicator
 from abstract_tree.visitor import Visitor
 from expression_type import ExpressionType
 from identification_table import IdentificationTable
@@ -37,7 +37,9 @@ class Checker(Visitor):
         declaration = self.idTable.get(identifier)
 
         if declaration:
-            fd: FuncDeclaration = FuncDeclaration(declaration)
+            declaration.__class__ = FuncDeclaration
+            # noinspection PyTypeChecker
+            fd: FuncDeclaration = declaration
             if len(types) != len(fd.args):
                 raise Exception(f"Function {identifier} expects {len(fd.args)} number of arguments.")
             return ExpressionType(False)
@@ -70,7 +72,7 @@ class Checker(Visitor):
             raise Exception(f"Variable {identifier} is not defined.")
 
     def visit_arguments_list(self, al: ArgumentsList) -> object:
-        types: List[ExpressionType] = []
+        types = List[ExpressionType]()
 
         for a in al.expressions:
             types.append(a.visit(self))
@@ -78,10 +80,9 @@ class Checker(Visitor):
         return types
 
     def visit_expression_list(self, el: ExpressionList):
-        pass
-
-    def visit_terminal(self, t: Terminal):
-        pass
+        for expression in el.expressions:
+            expression.visit()
+        return None
 
     def visit_program(self, p: Program) -> object:
         self.idTable.openScope()

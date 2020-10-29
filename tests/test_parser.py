@@ -1,16 +1,17 @@
+from __future__ import annotations
+
 import unittest
 from unittest.mock import patch, mock_open
-from scanner import Scanner, SourceFile
-from parser import Parser
-from tokens import Kind, TYPE_DENOTERS
-from exceptions import UnsupportedExpressionTokenException
+
 from abstract_tree import (TypeIndicator, IntLiteralExpression, VarExpression,
                            UnaryExpression, VarDeclarationWithAssignment,
-                           FuncDeclaration, VarDeclaration, StatementCommand,
-                           DeclarationCommand, CommandList, Program,
+                           FuncDeclaration, StatementCommand,
+                           CommandList, Program, DeclarationCommand,
                            BinaryExpression)
-import json
-from itertools import chain
+from exceptions import UnsupportedExpressionTokenException
+from parser import Parser
+from scanner import Scanner
+from tokens import Kind
 
 
 class TestParser(unittest.TestCase):
@@ -123,7 +124,7 @@ class TestParser(unittest.TestCase):
             s = Scanner('file')
             p = Parser(s)
 
-            expression = p.parse_expression()
+            expression = p.parse_expression_list()
 
             self.assertTrue(isinstance(expression, VarExpression))
             self.assertEqual(expression.name.spelling, 'hello')
@@ -134,7 +135,7 @@ class TestParser(unittest.TestCase):
             s = Scanner('file')
             p = Parser(s)
 
-            expression = p.parse_expression()
+            expression = p.parse_expression_list()
 
             self.assertTrue(isinstance(expression, BinaryExpression))
             self.assertTrue(isinstance(
@@ -148,7 +149,7 @@ class TestParser(unittest.TestCase):
             s = Scanner('file')
             p = Parser(s)
 
-            expression = p.parse_expression()
+            expression = p.parse_expression_list()
 
             self.assertTrue(isinstance(expression, BinaryExpression))
             self.assertEqual(p.current_terminal.kind,
@@ -159,7 +160,7 @@ class TestParser(unittest.TestCase):
             s = Scanner('file')
             p = Parser(s)
 
-            expression = p.parse_expression()
+            expression = p.parse_expression_list()
 
             self.assertTrue(isinstance(expression, BinaryExpression))
             self.assertTrue(isinstance(
@@ -215,7 +216,7 @@ class TestParser(unittest.TestCase):
             args_length = len(func_declaration.args.expressions)
 
             self.assertTrue(isinstance(func_declaration, FuncDeclaration))
-            self.assertEquals(args_length, 1)
+            self.assertEqual(args_length, 1)
             self.assertEqual(p.current_terminal.kind, Kind.EOT)
 
     def test_parse_single_func_declaration_with_multiple_arguments(self):
@@ -234,7 +235,7 @@ class TestParser(unittest.TestCase):
             args_length = len(func_declaration.args.expressions)
 
             self.assertTrue(isinstance(func_declaration, FuncDeclaration))
-            self.assertEquals(args_length, 3)
+            self.assertEqual(args_length, 3)
             self.assertEqual(p.current_terminal.kind, Kind.EOT)
 
     # TODO: Add tests with return statements
@@ -252,7 +253,7 @@ class TestParser(unittest.TestCase):
             s = Scanner('file')
             p = Parser(s)
 
-            declaration = p.parse_declaration()
+            declaration = p.parse_declaration_list()
             var_declarations = [
                 var_declaration for var_declaration in declaration.declarations]
 
@@ -276,7 +277,7 @@ class TestParser(unittest.TestCase):
             s = Scanner('file')
             p = Parser(s)
 
-            declarations = p.parse_declaration()
+            declarations = p.parse_declaration_list()
             var_declaration = declarations.declarations[0]
             func_declaration = declarations.declarations[1]
 
@@ -298,7 +299,7 @@ class TestParser(unittest.TestCase):
             s = Scanner('file')
             p = Parser(s)
 
-            declarations = p.parse_declaration()
+            declarations = p.parse_declaration_list()
             var_declaration = declarations.declarations[0]
             func_declaration = declarations.declarations[1]
 
@@ -324,7 +325,7 @@ class TestParser(unittest.TestCase):
             s = Scanner('file')
             p = Parser(s)
 
-            declarations = p.parse_declaration()
+            declarations = p.parse_declaration_list()
 
             self.assertTrue(isinstance(
                 declarations.declarations[0], FuncDeclaration))
@@ -385,7 +386,7 @@ class TestParser(unittest.TestCase):
             s = Scanner('file')
             p = Parser(s)
 
-            command = p.parse_command()
+            command = p.parse_command_list()
 
             self.assertTrue(isinstance(command, CommandList))
             self.assertTrue(all(isinstance(c, StatementCommand)
@@ -398,7 +399,7 @@ class TestParser(unittest.TestCase):
             s = Scanner('file')
             p = Parser(s)
 
-            command = p.parse_command()
+            command = p.parse_command_list()
 
             self.assertTrue(isinstance(command, CommandList))
             self.assertTrue(all(isinstance(c, DeclarationCommand)

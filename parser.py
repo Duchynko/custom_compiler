@@ -8,31 +8,31 @@ from exceptions import (UnexpectedTokenException,
                         UnexpectedEndOfProgramException)
 
 
-class Parser():
+class Parser:
     def __init__(self, scanner: Scanner):
         self.scanner = scanner
         self.current_terminal = scanner.scan()
 
     def parse_program(self) -> Program:
-        command = self.parse_command()
+        command = self.parse_command_list()
 
         if self.current_terminal.kind is not K.EOT:
             raise UnexpectedEndOfProgramException(self.current_terminal)
         print(f"Successfully parsed the program.")
         return Program(command=command)
 
-    def parse_command(self) -> CommandList:
+    def parse_command_list(self) -> CommandList:
         valid_kinds = [K.IDENTIFIER, K.FUNC, K.IF,
                        K.WHILE, K.RETURN] + TYPE_DENOTERS
-        commands = CommandList()
+        commands_list = CommandList()
         while self.current_terminal.kind in valid_kinds:
             command = self.parse_single_command()
-            commands.commands.append(command)
-        return commands
+            commands_list.commands.append(command)
+        return commands_list
 
     def parse_single_command(self) -> AbstractCommand:
         if self.current_terminal.kind is K.FUNC:
-            declaration = self.parse_declaration()
+            declaration = self.parse_declaration_list()
             return DeclarationCommand(declaration=declaration)
 
         elif self.current_terminal.kind in [K.RETURN, K.IF, K.WHILE]:
@@ -45,7 +45,7 @@ class Parser():
             return StatementCommand(statement=statement)
 
         elif self.current_terminal.kind in TYPE_DENOTERS:
-            declaration = self.parse_declaration()
+            declaration = self.parse_declaration_list()
             self.accept(K.SEMICOLON)
             return DeclarationCommand(declaration=declaration)
 
@@ -60,28 +60,29 @@ class Parser():
         if self.current_terminal.kind is K.IF:
             self.accept(K.IF)
             self.accept(K.LEFT_PAR)
-            expression = self.parse_expression()
+            expression = self.parse_expression_list()
             self.accept(K.RIGHT_PAR)
             self.accept(K.COLON)
-            ifBlock = self.parse_command()
+            if_block = self.parse_command_list()
+            else_block = None
             if self.current_terminal.kind is K.ELSE:
                 self.accept(K.ELSE)
                 self.accept(K.COLON)
-                elseBlock = self.parse_command()
+                else_block = self.parse_command_list()
             self.accept(K.END)
             return IfStatement(
                 expr=expression,
-                if_com=ifBlock,
-                else_com=elseBlock
+                if_com=if_block,
+                else_com=else_block
             )
 
         elif self.current_terminal.kind is K.WHILE:
             self.accept(K.WHILE)
             self.accept(K.LEFT_PAR)
-            expression = self.parse_expression()
+            expression = self.parse_expression_list()
             self.accept(K.RIGHT_PAR)
             self.accept(K.COLON)
-            command = self.parse_command()
+            command = self.parse_command_list()
             self.accept(K.END)
             return WhileStatement(
                 expr=expression,
@@ -94,10 +95,10 @@ class Parser():
             return ReturnStatement(expression)
 
         elif self.current_terminal.kind is K.IDENTIFIER:
-            expressions = self.parse_expression()
+            expressions = self.parse_expression_list()
             return ExpressionStatement(expressions=expressions)
 
-    def parse_declaration(self):
+    def parse_declaration_list(self):
         res = DeclarationList()
         while (self.current_terminal.kind in [K.FUNC] + TYPE_DENOTERS):
             res.declarations.append(self.parse_single_declaration())
@@ -111,8 +112,8 @@ class Parser():
             args = self.parse_expressions_list()
             self.accept(K.RIGHT_PAR)
             self.accept(K.COLON)
-            commands = self.parse_command()
-            self.parse_command()
+            commands = self.parse_command_list()
+            self.parse_command_list()
             self.accept(K.END)
             return FuncDeclaration(
                 identifier=identifier,
@@ -125,7 +126,7 @@ class Parser():
             identifier = self.parse_identifier()
             if self.current_terminal.kind is K.OPERATOR:
                 operator = self.parse_operator()
-                expression = self.parse_expression()
+                expression = self.parse_expression_list()
                 return VarDeclarationWithAssignment(
                     type_indicator=type_denoter,
                     identifier=identifier,
@@ -143,7 +144,7 @@ class Parser():
                 current_column=self.scanner.current_column
             )
 
-    def parse_expression(self):
+    def parse_expression_list(self):
         res = self.parse_single_expression()
         while self.current_terminal.kind is K.OPERATOR:
             operator = self.parse_operator()
@@ -180,7 +181,7 @@ class Parser():
             elif self.current_terminal.kind in ASSIGNOPS:
                 variable = VarExpression(identifier)
                 operator = self.parse_operator()
-                expression = self.parse_expression()
+                expression = self.parse_expression_list()
                 return BinaryExpression(
                     operator=operator,
                     expression1=variable,
@@ -199,11 +200,11 @@ class Parser():
     def parse_expressions_list(self):
         if self.current_terminal.kind in [K.IDENTIFIER, K.INTEGER_LITERAL, K.OPERATOR, K.TRUE, K.FALSE]:
             exp_list = ArgumentsList()
-            expression = self.parse_expression()
+            expression = self.parse_expression_list()
             exp_list.expressions.append(expression)
             while self.current_terminal.kind is K.COMMA:
                 self.accept(K.COMMA)
-                exp_list.expressions.append(self.parse_expression())
+                exp_list.expressions.append(self.parse_expression_list())
             return exp_list
 
     def parse_type_denoter(self):

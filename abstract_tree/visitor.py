@@ -1,21 +1,11 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
-from abstract_tree.expressions.expression_list import ExpressionList
-from .program import Program
-from .commands import CommandList, DeclarationCommand, StatementCommand
-from .declarations import (DeclarationList, FuncDeclaration, VarDeclaration,
-                           VarDeclarationWithAssignment)
-from .statements import (IfStatement, ExpressionStatement, WhileStatement,
-                         ReturnStatement)
-from .terminals import (BooleanLiteral, Identifier, IntegerLiteral,
-                        Operator, TypeIndicator)
-from .expressions import (BinaryExpression, UnaryExpression, CallExpression,
-                          BooleanLiteralExpression, IntLiteralExpression,
-                          ArgumentsList, VarExpression)
+from abstract_tree import *
 
 
 class Visitor(ABC):
-
     @abstractmethod
     def visit_program(self, p: Program) -> object:
         pass

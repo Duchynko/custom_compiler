@@ -1,10 +1,9 @@
-from abstract_tree.visitor import Visitor
+from __future__ import annotations
+
 from .terminal import Terminal
+from ..visitor import Visitor
 
 
 class Operator(Terminal):
-    def __init__(self, spelling: str):
-        super().__init__(spelling)
-
-    def visit(self, v: Visitor) -> object:
-        return v.visit_operator(self)
+    def visit(self, visitor: Visitor) -> object:
+        return visitor.visit_operator(self)
