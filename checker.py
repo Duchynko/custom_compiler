@@ -9,6 +9,7 @@ from abstract_tree.program import Program
 from abstract_tree.statements import IfStatement, ExpressionStatement, WhileStatement, ReturnStatement
 from abstract_tree.terminals import BooleanLiteral, Identifier, IntegerLiteral, Operator, TypeIndicator
 from abstract_tree.visitor import Visitor
+from exceptions import UndeclaredVariableException, InvalidOperatorException
 from expression_type import ExpressionType
 from identification_table import IdentificationTable
 from tokens import ADDOPS, MULOPS, ASSIGNOPS
@@ -21,10 +22,10 @@ class Checker(Visitor):
     def check(self, p: Program):
         p.visit(self)
 
-    def visit_binary_expression(self, be: BinaryExpression):
+    def visit_binary_expression(self, be: BinaryExpression) -> ExpressionType:
         t1: ExpressionType = be.expression1.visit(self)
         _: ExpressionType = be.expression2.visit(self)
-        operator = be.operator(self)
+        operator = be.operator.visit(self)
 
         if operator in ASSIGNOPS and t1.is_rvalue:
             raise Exception("Left-hand side of the expression must be a variable.")
@@ -46,42 +47,42 @@ class Checker(Visitor):
         else:
             raise Exception(f"Function {identifier} is not declared.")
 
-    def visit_unary_expression(self, ue: UnaryExpression):
+    def visit_unary_expression(self, ue: UnaryExpression) -> ExpressionType:
         ue.expression.visit(self)
         operator = ue.operator.visit(self)
 
         if operator not in ADDOPS + MULOPS:
-            raise Exception(f"Operator {operator} is not allowed here.")
+            raise InvalidOperatorException(f"Operator {operator} is not allowed here.")
         return ExpressionType(True)
 
-    def visit_boolean_literal_expression(self, be: BooleanLiteralExpression):
-        be.visit(self)
+    def visit_boolean_literal_expression(self, be: BooleanLiteralExpression) -> ExpressionType:
+        be.literal.visit(self)
         return ExpressionType(True)
 
-    def visit_int_literal_expression(self, ie: IntLiteralExpression):
-        ie.visit(self)
+    def visit_int_literal_expression(self, ie: IntLiteralExpression) -> ExpressionType:
+        ie.literal.visit(self)
         return ExpressionType(True)
 
-    def visit_var_expression(self, ve: VarExpression):
+    def visit_var_expression(self, ve: VarExpression) -> ExpressionType:
         identifier = ve.name.visit(self)
         declaration = self.idTable.get(identifier)
 
         if declaration:
             return ExpressionType(False)
         else:
-            raise Exception(f"Variable {identifier} is not defined.")
+            raise UndeclaredVariableException(f"Variable {identifier} is not defined.")
 
-    def visit_arguments_list(self, al: ArgumentsList) -> object:
-        types = List[ExpressionType]()
+    def visit_arguments_list(self, al: ArgumentsList) -> List[ExpressionType]:
+        types: List[ExpressionType] = []
 
         for a in al.expressions:
             types.append(a.visit(self))
 
         return types
 
-    def visit_expression_list(self, el: ExpressionList):
+    def visit_expression_list(self, el: ExpressionList) -> None:
         for expression in el.expressions:
-            expression.visit()
+            expression.visit(self)
         return None
 
     def visit_program(self, p: Program) -> object:
@@ -121,8 +122,8 @@ class Checker(Visitor):
         self.idTable.closeScope()
         return None
 
-    def visit_var_declaration(self, vd: VarDeclaration) -> object:
-        identifier = vd.identifier.visit()
+    def visit_var_declaration(self, vd: VarDeclaration) -> None:
+        identifier = vd.identifier.visit(self)
 
         self.idTable.insert(identifier=identifier, attr=vd)
         return None

@@ -99,3 +99,11 @@ class UnsupportedDeclarationTokenException(UnsupportedTokenException):
     def __init__(self, current_token: Token, current_line: int, current_column: int):
         super().__init__(symbol_type='declaration', current_token=current_token,
                          current_line=current_line, current_column=current_column)
+
+
+class UndeclaredVariableException(Exception):
+    pass
+
+
+class InvalidOperatorException(Exception):
+    pass
