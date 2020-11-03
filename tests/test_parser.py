@@ -51,7 +51,7 @@ class TestParser(unittest.TestCase):
             s = Scanner('file')
             p = Parser(s)
 
-            type_d = p.parse_type_denoter()
+            type_d = p.parse_type_indicator()
 
             self.assertTrue(isinstance(type_d, TypeIndicator))
             self.assertEqual(type_d.spelling, 'int')
@@ -124,7 +124,7 @@ class TestParser(unittest.TestCase):
             s = Scanner('file')
             p = Parser(s)
 
-            expression = p.parse_expression_list()
+            expression = p.parse_expression_list_assign_operator()
 
             self.assertTrue(isinstance(expression, VarExpression))
             self.assertEqual(expression.name.spelling, 'hello')
@@ -135,7 +135,7 @@ class TestParser(unittest.TestCase):
             s = Scanner('file')
             p = Parser(s)
 
-            expression = p.parse_expression_list()
+            expression = p.parse_expression_list_assign_operator()
 
             self.assertTrue(isinstance(expression, BinaryExpression))
             self.assertTrue(isinstance(
@@ -149,7 +149,7 @@ class TestParser(unittest.TestCase):
             s = Scanner('file')
             p = Parser(s)
 
-            expression = p.parse_expression_list()
+            expression = p.parse_expression_list_assign_operator()
 
             self.assertTrue(isinstance(expression, BinaryExpression))
             self.assertEqual(p.current_terminal.kind,
@@ -160,7 +160,7 @@ class TestParser(unittest.TestCase):
             s = Scanner('file')
             p = Parser(s)
 
-            expression = p.parse_expression_list()
+            expression = p.parse_expression_list_assign_operator()
 
             self.assertTrue(isinstance(expression, BinaryExpression))
             self.assertTrue(isinstance(

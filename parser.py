@@ -1,5 +1,5 @@
 from scanner import Scanner
-from tokens import Kind as K, TYPE_DENOTERS, ASSIGNOPS
+from tokens import Kind as K, TYPE_DENOTERS, ASSIGNOPS, ADDOPS, MULOPS
 from abstract_tree import *
 from exceptions import (UnexpectedTokenException,
                         UnsupportedExpressionTokenException,
@@ -14,40 +14,40 @@ class Parser:
         self.current_terminal = scanner.scan()
 
     def parse_program(self) -> Program:
-        command = self.parse_command_list()
+        cmd = self.parse_command_list()
 
         if self.current_terminal.kind is not K.EOT:
             raise UnexpectedEndOfProgramException(self.current_terminal)
         print(f"Successfully parsed the program.")
-        return Program(command=command)
+        return Program(command=cmd)
 
     def parse_command_list(self) -> CommandList:
         valid_kinds = [K.IDENTIFIER, K.FUNC, K.IF,
                        K.WHILE, K.RETURN] + TYPE_DENOTERS
-        commands_list = CommandList()
+        cmd_list = CommandList()
         while self.current_terminal.kind in valid_kinds:
-            command = self.parse_single_command()
-            commands_list.commands.append(command)
-        return commands_list
+            cmd = self.parse_single_command()
+            cmd_list.commands.append(cmd)
+        return cmd_list
 
     def parse_single_command(self) -> AbstractCommand:
         if self.current_terminal.kind is K.FUNC:
-            declaration = self.parse_declaration_list()
-            return DeclarationCommand(declaration=declaration)
+            dec = self.parse_declaration_list()
+            return DeclarationCommand(declaration=dec)
 
         elif self.current_terminal.kind in [K.RETURN, K.IF, K.WHILE]:
-            statement = self.parse_single_statement()
-            return StatementCommand(statement=statement)
+            st = self.parse_single_statement()
+            return StatementCommand(statement=st)
 
         elif self.current_terminal.kind is K.IDENTIFIER:
-            statement = self.parse_single_statement()
+            st = self.parse_single_statement()
             self.accept(K.SEMICOLON)
-            return StatementCommand(statement=statement)
+            return StatementCommand(statement=st)
 
         elif self.current_terminal.kind in TYPE_DENOTERS:
-            declaration = self.parse_declaration_list()
+            dec = self.parse_declaration_list()
             self.accept(K.SEMICOLON)
-            return DeclarationCommand(declaration=declaration)
+            return DeclarationCommand(declaration=dec)
 
         else:
             raise UnsupportedCommandTokenException(
@@ -60,7 +60,7 @@ class Parser:
         if self.current_terminal.kind is K.IF:
             self.accept(K.IF)
             self.accept(K.LEFT_PAR)
-            expression = self.parse_expression_list()
+            exp = self.parse_expression_list_assign_operator()
             self.accept(K.RIGHT_PAR)
             self.accept(K.COLON)
             if_block = self.parse_command_list()
@@ -71,7 +71,7 @@ class Parser:
                 else_block = self.parse_command_list()
             self.accept(K.END)
             return IfStatement(
-                expr=expression,
+                expr=exp,
                 if_com=if_block,
                 else_com=else_block
             )
@@ -79,63 +79,63 @@ class Parser:
         elif self.current_terminal.kind is K.WHILE:
             self.accept(K.WHILE)
             self.accept(K.LEFT_PAR)
-            expression = self.parse_expression_list()
+            exp = self.parse_expression_list_assign_operator()
             self.accept(K.RIGHT_PAR)
             self.accept(K.COLON)
-            command = self.parse_command_list()
+            cmd_list = self.parse_command_list()
             self.accept(K.END)
             return WhileStatement(
-                expr=expression,
-                command=command
+                expr=exp,
+                command=cmd_list
             )
 
         elif self.current_terminal.kind is K.RETURN:
             self.accept(K.RETURN)
-            expression = self.parse_single_expression()
-            return ReturnStatement(expression)
+            exp = self.parse_single_expression()
+            return ReturnStatement(exp)
 
         elif self.current_terminal.kind is K.IDENTIFIER:
-            expressions = self.parse_expression_list()
-            return ExpressionStatement(expressions=expressions)
+            exp_list = self.parse_expression_list_assign_operator()
+            return ExpressionStatement(expressions=exp_list)
 
     def parse_declaration_list(self):
         res = DeclarationList()
-        while (self.current_terminal.kind in [K.FUNC] + TYPE_DENOTERS):
+        while self.current_terminal.kind in [K.FUNC] + TYPE_DENOTERS:
             res.declarations.append(self.parse_single_declaration())
         return res
 
     def parse_single_declaration(self):
         if self.current_terminal.kind is K.FUNC:
             self.accept(K.FUNC)
-            identifier = self.accept(K.IDENTIFIER)
+            idf = self.parse_identifier()
             self.accept(K.LEFT_PAR)
             args = self.parse_expressions_list()
             self.accept(K.RIGHT_PAR)
             self.accept(K.COLON)
-            commands = self.parse_command_list()
+            command_list = self.parse_command_list()
             self.parse_command_list()
             self.accept(K.END)
             return FuncDeclaration(
-                identifier=identifier,
+                identifier=idf,
                 args=args,
-                commands=commands
+                commands=command_list
             )
 
         elif self.current_terminal.kind in [K.STRING_TYPE, K.INTEGER_TYPE, K.BOOLEAN_TYPE]:
-            type_denoter = self.parse_type_denoter()
-            identifier = self.parse_identifier()
+            type_i = self.parse_type_indicator()
+            idf = self.parse_identifier()
             if self.current_terminal.kind is K.OPERATOR:
-                operator = self.parse_operator()
-                expression = self.parse_expression_list()
+                opr = self.parse_operator()
+                exp_list = self.parse_expression_list_assign_operator()
                 return VarDeclarationWithAssignment(
-                    type_indicator=type_denoter,
-                    identifier=identifier,
-                    operator=operator,
-                    expression=expression)
+                    type_indicator=type_i,
+                    identifier=idf,
+                    operator=opr,
+                    expression=exp_list)
             else:
                 return VarDeclaration(
-                    type_indicator=type_denoter,
-                    identifier=identifier)
+                    type_indicator=type_i,
+                    identifier=idf)
 
         else:
             raise UnsupportedDeclarationTokenException(
@@ -144,51 +144,78 @@ class Parser:
                 current_column=self.scanner.current_column
             )
 
-    def parse_expression_list(self):
-        res = self.parse_single_expression()
-        while self.current_terminal.kind is K.OPERATOR:
-            operator = self.parse_operator()
-            tmp = self.parse_single_expression()
+    def parse_expression_list_assign_operator(self):
+        res = self.parse_expression_list_add_operator()
+        while self.current_terminal.kind in ASSIGNOPS:
+            opr = self.parse_operator()
+            tmp = self.parse_expression_list_add_operator()
             res = BinaryExpression(
-                operator=operator,
+                operator=opr,
                 expression1=res,
-                expression2=tmp)
+                expression2=tmp
+            )
+        return res
+
+    def parse_expression_list_add_operator(self):
+        res = self.parse_expression_list_mul_operator()
+        while self.current_terminal.kind in ADDOPS:
+            opr = self.parse_operator()
+            tmp = self.parse_expression_list_mul_operator()
+
+            res = BinaryExpression(
+                operator=opr,
+                expression1=res,
+                expression2=tmp
+            )
+        return res
+
+    def parse_expression_list_mul_operator(self):
+        res = self.parse_single_expression()
+        while self.current_terminal.kind in MULOPS:
+            opr = self.parse_operator()
+            tmp = self.parse_single_expression()
+
+            res = BinaryExpression(
+                operator=opr,
+                expression1=res,
+                expression2=tmp
+            )
         return res
 
     def parse_single_expression(self):
         if self.current_terminal.kind is K.INTEGER_LITERAL:
-            literal = self.parse_integer_literal()
-            return IntLiteralExpression(literal=literal)
+            int_literal = self.parse_integer_literal()
+            return IntLiteralExpression(literal=int_literal)
 
         elif self.current_terminal.kind in [K.TRUE, K.FALSE]:
-            boolean = self.parse_boolean()
-            return BooleanLiteralExpression(literal=boolean)
+            bool_literal = self.parse_boolean()
+            return BooleanLiteralExpression(literal=bool_literal)
 
         elif self.current_terminal.kind is K.OPERATOR:
-            operator = self.parse_operator()
-            expression = self.parse_single_expression()
-            return UnaryExpression(operator=operator, expression=expression)
+            opr = self.parse_operator()
+            exp_list = self.parse_single_expression()
+            return UnaryExpression(operator=opr, expression=exp_list)
 
         elif self.current_terminal.kind is K.IDENTIFIER:
-            identifier = self.parse_identifier()
+            idf = self.parse_identifier()
             # identifier()
             if self.current_terminal.kind is K.LEFT_PAR:
                 self.accept(K.LEFT_PAR)
-                expressions_list = self.parse_expressions_list()
+                exp_list = self.parse_expressions_list()
                 self.accept(K.RIGHT_PAR)
-                return CallExpression(name=identifier, args=expressions_list)
+                return CallExpression(name=idf, args=exp_list)
             # identifier ~ expression
             elif self.current_terminal.kind in ASSIGNOPS:
-                variable = VarExpression(identifier)
-                operator = self.parse_operator()
-                expression = self.parse_expression_list()
+                var_exp = VarExpression(idf)
+                opr = self.parse_operator()
+                exp_list = self.parse_expression_list_assign_operator()
                 return BinaryExpression(
-                    operator=operator,
-                    expression1=variable,
-                    expression2=expression
+                    operator=opr,
+                    expression1=var_exp,
+                    expression2=exp_list
                 )
             else:
-                return VarExpression(identifier)
+                return VarExpression(idf)
 
         else:
             raise UnsupportedExpressionTokenException(
@@ -200,41 +227,41 @@ class Parser:
     def parse_expressions_list(self):
         if self.current_terminal.kind in [K.IDENTIFIER, K.INTEGER_LITERAL, K.OPERATOR, K.TRUE, K.FALSE]:
             exp_list = ArgumentsList()
-            expression = self.parse_expression_list()
-            exp_list.expressions.append(expression)
+            exp = self.parse_expression_list_assign_operator()
+            exp_list.expressions.append(exp)
             while self.current_terminal.kind is K.COMMA:
                 self.accept(K.COMMA)
-                exp_list.expressions.append(self.parse_expression_list())
+                exp_list.expressions.append(self.parse_expression_list_assign_operator())
             return exp_list
 
-    def parse_type_denoter(self):
+    def parse_type_indicator(self):
         if self.current_terminal.kind in TYPE_DENOTERS:
-            type_denoter = TypeIndicator(spelling=self.current_terminal.spelling)
+            type_i = TypeIndicator(spelling=self.current_terminal.spelling)
             self.current_terminal = self.scanner.scan()
-            return type_denoter
+            return type_i
 
     def parse_integer_literal(self) -> IntegerLiteral:
         if self.current_terminal.kind is K.INTEGER_LITERAL:
-            literal = IntegerLiteral(self.current_terminal.spelling)
+            int_literal = IntegerLiteral(self.current_terminal.spelling)
             self.current_terminal = self.scanner.scan()
-            return literal
+            return int_literal
 
     def parse_identifier(self) -> Identifier:
         if self.current_terminal.kind is K.IDENTIFIER:
-            identifier = Identifier(self.current_terminal.spelling)
+            idf = Identifier(self.current_terminal.spelling)
             self.current_terminal = self.scanner.scan()
-            return identifier
+            return idf
 
     def parse_boolean(self) -> BooleanLiteral:
         if self.current_terminal.kind in [K.TRUE, K.FALSE]:
-            value = BooleanLiteral(spelling=self.current_terminal.spelling)
-            return value
+            bool_literal = BooleanLiteral(spelling=self.current_terminal.spelling)
+            return bool_literal
 
     def parse_operator(self) -> Operator:
         if self.current_terminal.kind is K.OPERATOR:
-            operator = Operator(self.current_terminal.spelling)
+            opr = Operator(self.current_terminal.spelling)
             self.current_terminal = self.scanner.scan()
-            return operator
+            return opr
         else:
             raise UnexpectedTokenException(
                 expected_kind=K.OPERATOR,
