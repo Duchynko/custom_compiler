@@ -19,7 +19,7 @@ class IdentificationTable:
         self.level = 0
 
     def _find(self, identifier: str) -> Optional[IdEntry]:
-        for i in reversed(range(len(self.table)-1)):
+        for i in reversed(range(len(self.table))):
             if self.table[i].identifier is identifier:
                 return self.table[i]
         return None
