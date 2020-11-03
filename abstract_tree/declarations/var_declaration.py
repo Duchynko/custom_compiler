@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from ..visitor import Visitor
+from ..expressions.abstract_expression import AbstractExpression
 from .abstract_declaration import AbstractDeclaration
-from ..expressions.expression_list import ExpressionList
 from ..terminals.identifier import Identifier
 from ..terminals.operator import Operator
 from ..terminals.type_indicator import TypeIndicator
@@ -18,7 +18,8 @@ class VarDeclaration(AbstractDeclaration):
 
 
 class VarDeclarationWithAssignment(AbstractDeclaration):
-    def __init__(self, type_indicator: TypeIndicator, identifier: Identifier, operator: Operator, expression: ExpressionList):
+    def __init__(self, type_indicator: TypeIndicator, identifier: Identifier,
+                 operator: Operator, expression: AbstractExpression):
         self.type_indicator = type_indicator
         self.identifier = identifier
         self.operator = operator
