@@ -12,4 +12,4 @@ class CommandList(AbstractSyntaxTree):
         self.commands: List[AbstractCommand] = []
 
     def visit(self, visitor: Visitor, *args) -> object:
-        return visitor.visit_command_list(self)
+        return visitor.visit_command_list(self, *args)

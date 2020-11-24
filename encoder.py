@@ -59,8 +59,8 @@ class Encoder(Visitor):
 
     def visit_command_list(self, c: CommandList, *args) -> object:
         for command in c.commands:
-            command.visit(self)
-        return
+            command.visit(self, *args)
+        return None
 
     def visit_declaration_command(self, dc: DeclarationCommand, *args) -> object:
         return dc.declaration.visit(self, *args)

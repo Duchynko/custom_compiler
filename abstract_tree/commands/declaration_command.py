@@ -9,5 +9,5 @@ class DeclarationCommand(AbstractCommand):
     def __init__(self, declaration: DeclarationList):
         self.declaration = declaration
 
-    def visit(self, visitor: Visitor) -> object:
-        return visitor.visit_declaration_command(self)
+    def visit(self, visitor: Visitor, *args) -> object:
+        return visitor.visit_declaration_command(self, *args)

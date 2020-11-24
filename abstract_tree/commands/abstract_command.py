@@ -8,5 +8,5 @@ from ..visitor import Visitor
 
 class AbstractCommand(AbstractSyntaxTree, metaclass=ABCMeta):
     @abstractmethod
-    def visit(self, visitor: Visitor) -> object:
+    def visit(self, visitor: Visitor, *args) -> object:
         pass
