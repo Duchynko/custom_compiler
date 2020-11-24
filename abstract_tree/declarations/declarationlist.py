@@ -11,5 +11,5 @@ class DeclarationList(AbstractSyntaxTree):
     def __init__(self):
         self.declarations: List[AbstractDeclaration] = []
 
-    def visit(self, visitor: Visitor) -> object:
-        return visitor.visit_declaration_list(self)
+    def visit(self, visitor: Visitor, *args) -> object:
+        return visitor.visit_declaration_list(self, *args)

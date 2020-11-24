@@ -11,5 +11,5 @@ class WhileStatement(AbstractStatement):
         self.command = command
         self.expr = expr
 
-    def visit(self, visitor: Visitor) -> object:
-        return visitor.visit_while_statement(self)
+    def visit(self, visitor: Visitor, *args) -> object:
+        return visitor.visit_while_statement(self, *args)

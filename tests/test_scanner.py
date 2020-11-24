@@ -103,7 +103,6 @@ class TestScanner(unittest.TestCase):
     def test_scan_token_operators_return_operator(self):
         with patch('builtins.open', mock_open(read_data='*')):
             scanner = Scanner('')
-            print(f'TOKEN {scanner.current_char}')
 
             token_type = scanner.scan_token()
 
@@ -113,9 +112,9 @@ class TestScanner(unittest.TestCase):
 
 class TestSourceFile(unittest.TestCase):
     def test_init(self):
-        file = SourceFile('example_files/testfile.txt')
+        file = SourceFile('../example_files/testfile.txt')
 
-        self.assertEqual(file.source.name, 'example_files/testfile.txt')
+        self.assertEqual(file.source.name, '../example_files/testfile.txt')
         file.source.close()
 
     def test_init_exit_if_file_dont_exist(self):

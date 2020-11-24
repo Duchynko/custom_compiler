@@ -9,9 +9,10 @@ from ..visitor import Visitor
 
 class FuncDeclaration(AbstractDeclaration):
     def __init__(self, identifier: Identifier, args: ArgumentsList, commands: CommandList):
+        super().__init__()
         self.identifier = identifier
         self.args = args
         self.commands = commands
 
-    def visit(self, visitor: Visitor) -> object:
-        return visitor.visit_func_declaration(self)
+    def visit(self, visitor: Visitor, *args) -> object:
+        return visitor.visit_func_declaration(self, *args)

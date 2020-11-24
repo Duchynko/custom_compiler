@@ -41,6 +41,15 @@ class UnexpectedTokenException(Exception):
 
 
 class UnsupportedTokenException(ABC, Exception):
+    """
+    An exception thrown when a parser receives an unexpected token inside of
+    the parse_single_command() method.
+
+    Args:
+        current_token: current token parsed by a parser
+        current_line: line on which parser found an unexpected token
+        current_column: column on which parser found an unexpected token
+    """
     def __init__(self, symbol_type: str, current_token: Token, current_line: int, current_column: int):
         self.line = current_line
         self.column = current_column
@@ -70,33 +79,22 @@ class UnsupportedExpressionTokenException(UnsupportedTokenException):
 
 
 class UnsupportedCommandTokenException(UnsupportedTokenException):
-    """
-    An exception thrown when a parser receives an unexpected token inside of
-    the parse_single_command() method.
-
-    Args:
-        current_token: current token parsed by a parser
-        current_line: line on which parser found an unexpected token
-        current_column: column on which parser found an unexpected token
-    """
-
     def __init__(self, current_token: Token, current_line: int, current_column: int):
         super().__init__(symbol_type='command', current_token=current_token,
                          current_line=current_line, current_column=current_column)
 
 
 class UnsupportedDeclarationTokenException(UnsupportedTokenException):
-    """
-    An exception thrown when a parser receives an unexpected token inside of
-    the parse_single_declaration() method.
-
-    Args:
-        current_token: current token parsed by a parser
-        current_line: line on which parser found an unexpected token
-        current_column: column on which parser found an unexpected token
-    """
-
     def __init__(self, current_token: Token, current_line: int, current_column: int):
+        """
+         An exception thrown when a parser receives an unexpected token inside of
+         the parse_single_declaration() method.
+
+         Args:
+             current_token: current token parsed by a parser
+             current_line: line on which parser found an unexpected token
+             current_column: column on which parser found an unexpected token
+         """
         super().__init__(symbol_type='declaration', current_token=current_token,
                          current_line=current_line, current_column=current_column)
 

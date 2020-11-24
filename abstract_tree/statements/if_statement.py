@@ -12,5 +12,5 @@ class IfStatement(AbstractStatement):
         self.if_com = if_com
         self.else_com = else_com
 
-    def visit(self, visitor: Visitor) -> object:
-        return visitor.visit_if_statement(self)
+    def visit(self, visitor: Visitor, *args) -> object:
+        return visitor.visit_if_statement(self, *args)

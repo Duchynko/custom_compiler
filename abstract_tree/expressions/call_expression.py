@@ -11,5 +11,5 @@ class CallExpression(AbstractExpression):
         self.name = name
         self.args = args
 
-    def visit(self, visitor: Visitor) -> object:
-        return visitor.visit_call_expression(self)
+    def visit(self, visitor: Visitor, *args) -> object:
+        return visitor.visit_call_expression(self, *args)

@@ -11,5 +11,5 @@ class CommandList(AbstractSyntaxTree):
     def __init__(self):
         self.commands: List[AbstractCommand] = []
 
-    def visit(self, visitor: Visitor) -> object:
+    def visit(self, visitor: Visitor, *args) -> object:
         return visitor.visit_command_list(self)

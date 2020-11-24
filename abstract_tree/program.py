@@ -6,8 +6,8 @@ from .visitor import Visitor
 
 
 class Program(AbstractSyntaxTree):
-    def __init__(self, command: CommandList):
-        self.command = command
+    def __init__(self, command_list: CommandList):
+        self.command_list = command_list
 
-    def visit(self, visitor: Visitor):
-        return visitor.visit_program(self)
+    def visit(self, visitor: Visitor, *args):
+        return visitor.visit_program(self, args)

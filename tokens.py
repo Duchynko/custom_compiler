@@ -31,14 +31,14 @@ class Kind(Enum):
 ASSIGNOPS: list = ['~']
 ADDOPS: list = ['+', '-']
 MULOPS: list = ['/', '*']
-KEYWORDS: list(Kind) = [
+KEYWORDS: list[Kind] = [
     Kind.FUNC, Kind.END, Kind.ELSE,
     Kind.WHILE, Kind.IF, Kind.RETURN,
     Kind.ECHO, Kind.READ, Kind.TRUE,
     Kind.FALSE, Kind.STRING_TYPE,
     Kind.INTEGER_TYPE, Kind.BOOLEAN_TYPE
 ]
-TYPE_DENOTERS: list(Kind) = [
+TYPE_DENOTERS: list[Kind] = [
     Kind.STRING_TYPE, Kind.INTEGER_TYPE,
     Kind.BOOLEAN_TYPE
 ]

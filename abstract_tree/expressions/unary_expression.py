@@ -10,5 +10,5 @@ class UnaryExpression(AbstractExpression):
         self.operator = operator
         self.expression = expression
 
-    def visit(self, visitor: Visitor) -> object:
-        return visitor.visit_unary_expression(self)
+    def visit(self, visitor: Visitor, *args) -> object:
+        return visitor.visit_unary_expression(self, *args)

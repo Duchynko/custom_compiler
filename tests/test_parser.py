@@ -420,7 +420,7 @@ class TestParser(unittest.TestCase):
             six ~ six + 1;
         end
 
-        if (ten == 11):
+        if (ten):
             int seven ~ 7;
             return True
         else:

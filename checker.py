@@ -1,14 +1,15 @@
 from typing import List
 
-from abstract_tree.commands import CommandList, DeclarationCommand, StatementCommand
-from abstract_tree.declarations import DeclarationList, FuncDeclaration, VarDeclaration, VarDeclarationWithAssignment
-from abstract_tree.expressions import BinaryExpression, CallExpression, UnaryExpression, BooleanLiteralExpression, \
-    IntLiteralExpression, VarExpression, ArgumentsList
-from abstract_tree.expressions.expression_list import ExpressionList
-from abstract_tree.program import Program
-from abstract_tree.statements import IfStatement, ExpressionStatement, WhileStatement, ReturnStatement
-from abstract_tree.terminals import BooleanLiteral, Identifier, IntegerLiteral, Operator, TypeIndicator
+# from abstract_tree.commands import CommandList, DeclarationCommand, StatementCommand
+# from abstract_tree.declarations import DeclarationList, FuncDeclaration, VarDeclaration, VarDeclarationWithAssignment
+# from abstract_tree.expressions import BinaryExpression, CallExpression, UnaryExpression, BooleanLiteralExpression, \
+#     IntLiteralExpression, VarExpression, ArgumentsList
+# from abstract_tree.expressions.expression_list import ExpressionList
+# from abstract_tree.program import Program
+# from abstract_tree.statements import IfStatement, ExpressionStatement, WhileStatement, ReturnStatement
+# from abstract_tree.terminals import BooleanLiteral, Identifier, IntegerLiteral, Operator, TypeIndicator
 from abstract_tree.visitor import Visitor
+from abstract_tree import *
 from exceptions import UndeclaredVariableException, InvalidOperatorException
 from expression_type import ExpressionType
 from identification_table import IdentificationTable
@@ -22,7 +23,7 @@ class Checker(Visitor):
     def check(self, p: Program):
         p.visit(self)
 
-    def visit_binary_expression(self, be: BinaryExpression) -> ExpressionType:
+    def visit_binary_expression(self, be: BinaryExpression, *args) -> ExpressionType:
         t1: ExpressionType = be.expression1.visit(self)
         _: ExpressionType = be.expression2.visit(self)
         operator = be.operator.visit(self)
@@ -39,7 +40,6 @@ class Checker(Visitor):
 
         if declaration:
             declaration.__class__ = FuncDeclaration
-            # noinspection PyTypeChecker
             fd: FuncDeclaration = declaration
             if len(types) != len(fd.args):
                 raise Exception(f"Function {identifier} expects {len(fd.args)} number of arguments.")
@@ -47,7 +47,7 @@ class Checker(Visitor):
         else:
             raise Exception(f"Function {identifier} is not declared.")
 
-    def visit_unary_expression(self, ue: UnaryExpression) -> ExpressionType:
+    def visit_unary_expression(self, ue: UnaryExpression, *args) -> ExpressionType:
         ue.expression.visit(self)
         operator = ue.operator.visit(self)
 
@@ -55,24 +55,25 @@ class Checker(Visitor):
             raise InvalidOperatorException(f"Operator {operator} is not allowed here.")
         return ExpressionType(True)
 
-    def visit_boolean_literal_expression(self, be: BooleanLiteralExpression) -> ExpressionType:
+    def visit_boolean_literal_expression(self, be: BooleanLiteralExpression, *args) -> ExpressionType:
         be.literal.visit(self)
         return ExpressionType(True)
 
-    def visit_int_literal_expression(self, ie: IntLiteralExpression) -> ExpressionType:
+    def visit_int_literal_expression(self, ie: IntLiteralExpression, *args) -> ExpressionType:
         ie.literal.visit(self)
         return ExpressionType(True)
 
-    def visit_var_expression(self, ve: VarExpression) -> ExpressionType:
-        identifier = ve.name.visit(self)
+    def visit_var_expression(self, ve: VarExpression, *args) -> ExpressionType:
+        identifier: str = ve.name.visit(self)
         declaration = self.idTable.get(identifier)
 
         if declaration:
+            ve.declaration = declaration
             return ExpressionType(False)
         else:
             raise UndeclaredVariableException(f"Variable {identifier} is not defined.")
 
-    def visit_arguments_list(self, al: ArgumentsList) -> List[ExpressionType]:
+    def visit_arguments_list(self, al: ArgumentsList, *args) -> List[ExpressionType]:
         types: List[ExpressionType] = []
 
         for a in al.expressions:
@@ -80,37 +81,37 @@ class Checker(Visitor):
 
         return types
 
-    def visit_expression_list(self, el: ExpressionList) -> None:
+    def visit_expression_list(self, el: ExpressionList, *args) -> None:
         for expression in el.expressions:
             expression.visit(self)
         return None
 
-    def visit_program(self, p: Program) -> object:
+    def visit_program(self, p: Program, *args) -> object:
         self.idTable.openScope()
-        p.command.visit(self)
+        p.command_list.visit(self)
         self.idTable.closeScope()
         return None
 
-    def visit_command_list(self, c: CommandList) -> object:
+    def visit_command_list(self, c: CommandList, *args) -> object:
         for command in c.commands:
             command.visit(self)
         return None
 
-    def visit_declaration_command(self, dc: DeclarationCommand) -> object:
+    def visit_declaration_command(self, dc: DeclarationCommand, *args) -> object:
         for declaration in dc.declaration.declarations:
-            declaration.visit(self)
+            declaration.visit(self, )
         return None
 
-    def visit_statement_command(self, sc: StatementCommand) -> object:
+    def visit_statement_command(self, sc: StatementCommand, *args) -> object:
         sc.statement.visit(self)
         return None
 
-    def visit_declaration_list(self, d: DeclarationList) -> object:
+    def visit_declaration_list(self, d: DeclarationList, *args) -> object:
         for declaration in d.declarations:
-            declaration.visit(self)
+            declaration.visit(self, )
         return None
 
-    def visit_func_declaration(self, fd: FuncDeclaration) -> object:
+    def visit_func_declaration(self, fd: FuncDeclaration, *args) -> object:
         identifier = fd.identifier.visit(self)
 
         self.idTable.insert(identifier=identifier, attr=fd)
@@ -122,50 +123,49 @@ class Checker(Visitor):
         self.idTable.closeScope()
         return None
 
-    def visit_var_declaration(self, vd: VarDeclaration) -> None:
+    def visit_var_declaration(self, vd: VarDeclaration, *args) -> None:
         identifier = vd.identifier.visit(self)
 
         self.idTable.insert(identifier=identifier, attr=vd)
         return None
 
     def visit_var_declaration_with_assignment(
-            self, vd: VarDeclarationWithAssignment) -> object:
+            self, vd: VarDeclarationWithAssignment, *args) -> object:
         identifier = vd.identifier.visit(self)
 
         self.idTable.insert(identifier, vd)
         return None
 
-    def visit_expression_statement(self, es: ExpressionStatement) -> object:
-        for expression in es.expressions:
-            expression.visit(self)
+    def visit_expression_statement(self, es: ExpressionStatement, *args) -> object:
+        es.expressions.visit(self)
         return None
 
-    def visit_if_statement(self, ifs: IfStatement) -> object:
+    def visit_if_statement(self, ifs: IfStatement, *args) -> object:
         ifs.expr.visit(self)
         ifs.if_com.visit(self)
         ifs.else_com.visit(self)
         return None
 
-    def visit_while_statement(self, ws: WhileStatement) -> object:
+    def visit_while_statement(self, ws: WhileStatement, *args) -> object:
         ws.expr.visit(self)
         ws.command.visit(self)
         return None
 
-    def visit_return_statement(self, rs: ReturnStatement) -> object:
+    def visit_return_statement(self, rs: ReturnStatement, *args) -> object:
         rs.expression.visit(self)
         return None
 
-    def visit_identifier(self, i: Identifier) -> object:
+    def visit_identifier(self, i: Identifier, *args) -> object:
         return i.spelling
 
-    def visit_integer_literal(self, il: IntegerLiteral) -> object:
+    def visit_integer_literal(self, il: IntegerLiteral, *args) -> object:
         return il.spelling
 
-    def visit_boolean_literal(self, bl: BooleanLiteral) -> object:
+    def visit_boolean_literal(self, bl: BooleanLiteral, *args) -> object:
         return bl.spelling
 
-    def visit_operator(self, o: Operator) -> object:
+    def visit_operator(self, o: Operator, *args) -> object:
         return o.spelling
 
-    def visit_type_indicator(self, td: TypeIndicator) -> object:
+    def visit_type_indicator(self, td: TypeIndicator, *args) -> object:
         return td.spelling

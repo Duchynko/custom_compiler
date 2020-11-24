@@ -9,5 +9,5 @@ class ExpressionStatement(AbstractStatement):
     def __init__(self, expressions: AbstractExpression):
         self.expressions = expressions
 
-    def visit(self, visitor: Visitor) -> object:
-        return visitor.visit_expression_statement(self)
+    def visit(self, visitor: Visitor, *args) -> object:
+        return visitor.visit_expression_statement(self, *args)

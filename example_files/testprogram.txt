@@ -1,13 +1,14 @@
 int ten ~ 10;
+int four ~ 4;
 
 func helloWorld(ten, four):
     int six ~ 6;
     six ~ six + 1;
 end
 
-if (ten == 11):
+if (ten):
     int seven ~ 7;
-    return True
+    return true
 else:
-    return False
+    return false
 end

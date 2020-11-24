@@ -11,5 +11,5 @@ class ArgumentsList(AbstractSyntaxTree):
     def __init__(self):
         self.expressions: List[AbstractExpression] = []
 
-    def visit(self, visitor: Visitor) -> object:
-        return visitor.visit_arguments_list(self)
+    def visit(self, visitor: Visitor, *args) -> object:
+        return visitor.visit_arguments_list(self, *args)

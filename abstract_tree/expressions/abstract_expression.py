@@ -8,6 +8,6 @@ from ..visitor import Visitor
 
 class AbstractExpression(AbstractSyntaxTree, metaclass=ABCMeta):
     @abstractmethod
-    def visit(self, visitor: Visitor) -> object:
+    def visit(self, visitor: Visitor, *args) -> object:
         pass
 

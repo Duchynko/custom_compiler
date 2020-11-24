@@ -11,5 +11,5 @@ class BinaryExpression(AbstractExpression):
         self.expression1 = expression1
         self.expression2 = expression2
 
-    def visit(self, visitor: Visitor) -> object:
-        return visitor.visit_binary_expression(self)
+    def visit(self, visitor: Visitor, *args) -> object:
+        return visitor.visit_binary_expression(self, *args)

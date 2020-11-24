@@ -1,5 +1,5 @@
 from scanner import Scanner
-from tokens import Kind as K, TYPE_DENOTERS, ASSIGNOPS, ADDOPS, MULOPS
+from tokens import Kind as K, TYPE_DENOTERS
 from abstract_tree import *
 from exceptions import (UnexpectedTokenException,
                         UnsupportedExpressionTokenException,
@@ -19,7 +19,7 @@ class Parser:
         if self.current_terminal.kind is not K.EOT:
             raise UnexpectedEndOfProgramException(self.current_terminal)
         print(f"Successfully parsed the program.")
-        return Program(command=cmd)
+        return Program(command_list=cmd)
 
     def parse_command_list(self) -> CommandList:
         valid_kinds = [K.IDENTIFIER, K.FUNC, K.IF,
@@ -146,7 +146,7 @@ class Parser:
 
     def parse_expression_list_assign_operator(self):
         res = self.parse_expression_list_add_operator()
-        while self.current_terminal.kind in ASSIGNOPS:
+        while self.current_terminal.is_assign_operator():
             opr = self.parse_operator()
             tmp = self.parse_expression_list_add_operator()
             res = BinaryExpression(
@@ -158,7 +158,7 @@ class Parser:
 
     def parse_expression_list_add_operator(self):
         res = self.parse_expression_list_mul_operator()
-        while self.current_terminal.kind in ADDOPS:
+        while self.current_terminal.is_add_operator():
             opr = self.parse_operator()
             tmp = self.parse_expression_list_mul_operator()
 
@@ -171,7 +171,7 @@ class Parser:
 
     def parse_expression_list_mul_operator(self):
         res = self.parse_single_expression()
-        while self.current_terminal.kind in MULOPS:
+        while self.current_terminal.is_mul_operator():
             opr = self.parse_operator()
             tmp = self.parse_single_expression()
 
@@ -205,7 +205,7 @@ class Parser:
                 self.accept(K.RIGHT_PAR)
                 return CallExpression(name=idf, args=exp_list)
             # identifier ~ expression
-            elif self.current_terminal.kind in ASSIGNOPS:
+            elif self.current_terminal.is_assign_operator():
                 var_exp = VarExpression(idf)
                 opr = self.parse_operator()
                 exp_list = self.parse_expression_list_assign_operator()
@@ -255,6 +255,7 @@ class Parser:
     def parse_boolean(self) -> BooleanLiteral:
         if self.current_terminal.kind in [K.TRUE, K.FALSE]:
             bool_literal = BooleanLiteral(spelling=self.current_terminal.spelling)
+            self.current_terminal = self.scanner.scan()
             return bool_literal
 
     def parse_operator(self) -> Operator:
