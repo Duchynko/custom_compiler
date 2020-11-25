@@ -29,8 +29,8 @@ class Encoder(Visitor):
             Machine.code[self.next_address] = instruction
             self.next_address += 1
 
-    def __patch(self, adr: int, length: int):
-        Machine.code[adr].length = length
+    def __patch(self, adr: int, displacement: int):
+        Machine.code[adr].operand = displacement
 
     def __display_register(self, current_level: int, entity_level: int):
         if entity_level == 0:
@@ -42,8 +42,10 @@ class Encoder(Visitor):
 
     def save_target_program(self, file_name: str):
         try:
-            with open(f"{file_name}", mode='x') as f:
+            with open(f"{file_name}", mode='wb') as f:
+                print(f"Length of instructions: {self.next_address}")
                 for i in range(self.next_address):
+                    print(f"[{i}]: Op_code {Machine.code[i].op_code}")
                     Machine.code[i].write(f)
         except(Exception) as e:
             raise e
@@ -60,10 +62,11 @@ class Encoder(Visitor):
     def visit_command_list(self, c: CommandList, *args) -> object:
         for command in c.commands:
             command.visit(self, *args)
-        return None
+        return
 
     def visit_declaration_command(self, dc: DeclarationCommand, *args) -> object:
-        return dc.declaration.visit(self, *args)
+        print(f"Number of declarations: {len(dc.declaration_list.declarations)}")
+        return dc.declaration_list.visit(self, *args)
 
     def visit_statement_command(self, sc: StatementCommand, *args) -> object:
         return sc.statement.visit(self, *args)
@@ -78,49 +81,131 @@ class Encoder(Visitor):
         return size
 
     def visit_func_declaration(self, fd: FuncDeclaration, *args) -> object:
-        pass
+        fd.address = Address(self.current_level, self.next_address)
+        self.current_level += 1
+        address = Address.from_address(args[0])  # Inner frame
+        # Jump over the Command part so that it's not executed during the
+        # function declaration. register_r is initially set to CBr (0), but
+        # will be patched later, when we know the size of the function.
+        jump_instr = self.next_address
+        self.__emit(
+            operation=Machine.JUMPop,
+            length=0,
+            register_n=Machine.CBr,
+            displacement=0
+        )
+        fd.commands.visit(self, Address.from_address(address, Machine.link_data_size))
+        self.__emit(
+            operation=Machine.RETURNop,
+            length=1,  # TODO: Refactor to set length dynamically
+            register_n=0,
+            displacement=len(fd.args.expressions)  # TODO: How to do this properly?
+        )
+        # This is the end of the function, and the jump instruction can be patched
+        self.__patch(jump_instr, self.next_address)
+        # self.__emit(
+        #     operation=Machine.JUMPop,
+        #     length=0,
+        #     register_n=0,  # TODO: Add static and dynamic link
+        #     displacement=0  # TODO: Add static and dynamic link
+        # )
+        self.current_level -= 1
+        return args[0]  # Return back the address
 
     def visit_var_declaration(self, vd: VarDeclaration, *args) -> object:
         address = args[0]
         vd.address = address
-        size: int = vd.type_indicator.visit(self)
         register = self.__display_register(self.current_level, address.level)
+        size: int = vd.type_indicator.visit(self)
         self.__emit(
             operation=Machine.PUSHop,
-            length=size,
+            length=0,
             register_n=register,
-            displacement=address.displacement
+            displacement=size
         )
-        return Address.from_address(address, 1)
+        return Address.from_address(address=address, increment=1)
 
     def visit_var_declaration_with_assignment(self, vd: VarDeclarationWithAssignment, *args) -> object:
-        address = args[0]
+        address = args[0]  # An address for the new variable
+        print(f"Received address: {address}")
         vd.address = address
-        vd.expression.visit(self, True)
+        register = self.__display_register(self.current_level, address.level)
         size: int = vd.type_indicator.visit(self)
-        register = self.__display_register(self.current_level, address.displacement)
+        # Evaluate expression and LOAD it's value on to the stack. Because the value will be
+        # stored right away, it's not necessary to call PUSH.
+        vd.expression.visit(self, True)
+        # Pop the value from the stack top and store it into the register
         self.__emit(
             operation=Machine.STOREop,
             length=size,
             register_n=register,
             displacement=address.displacement
         )
+        new_address = Address.from_address(address=address, increment=1)
+        print(f"Returning from function: {new_address}")
+        return new_address
 
     def visit_expression_statement(self, es: ExpressionStatement, *args) -> object:
-        pass
+        es.expressions.visit(self, *args)
+        return
 
     def visit_if_statement(self, ifs: IfStatement, *args) -> object:
-        pass
+        # Evaluate an expression and push the result to the stack top
+        ifs.expr.visit(self, True)
+        # Emit JUMPIF instruction that will jump to the else-part of
+        # the block. (This value will be patched once we generate
+        # code for the if-part of the block)
+        jump1_addr = self.next_address
+        self.__emit(Machine.JUMPIFop, 0, Machine.CBr, 0)
+        # Generate instructions for the if-part of the block
+        ifs.if_com.visit(self, None)
+        # Emit JUMP instruction that will jump to the end of the
+        # if-else block
+        jump2_addr = self.next_address
+        self.__emit(Machine.JUMPop, 0, Machine.CBr, 0)
+        # Patch the JUMPIF operation, pointing to the address where
+        # the else-part of the block begins
+        self.__patch(jump1_addr, self.next_address)
+        # Generate instructions for the else-part of the block
+        ifs.else_com.visit(self, None)
+        self.__patch(jump2_addr, self.next_address)
+        # Patch the JUMP instruction, pointing to the address after
+        # the if-else block.
+        return
 
     def visit_while_statement(self, ws: WhileStatement, *args) -> object:
-        pass
+        start_address = self.next_address
+        # Evaluate an expression pushing the result on the top of the stack
+        ws.expr.visit(self, True)
+        # Jump at the end of the while block if the above expression
+        # evaluates to false
+        jump_address = self.next_address
+        self.__emit(
+            operation=Machine.JUMPIFop,
+            length=0,
+            register_n=Machine.CBr,
+            displacement=0
+        )
+        ws.command.visit(self, None)
+        # Jump back to the beginning of the while block and evaluate
+        # the expression
+        self.__emit(
+            operation=Machine.JUMPop,
+            length=0,
+            register_n=Machine.CBr,
+            displacement=start_address
+        )
+        self.__patch(jump_address, self.next_address)
+        return
 
     def visit_expression_list(self, el: ExpressionList, *args) -> object:
-        pass
+        for expression in el.expressions:
+            expression.visit(self, *args)
+        return
 
     def visit_binary_expression(self, be: BinaryExpression, *args) -> object:
         value_needed = args[0]
-        operator: str = be.operator.visit(self)
+        operator: str = be.operator.visit(self, None)
 
         if operator == '~':
             address: Address = be.expression1.visit(self, False)
@@ -157,14 +242,26 @@ class Encoder(Visitor):
         pass
 
     def visit_call_expression(self, ce: CallExpression, *args) -> object:
-        ce.args.visit(self)
+        value_needed = args[0]
+        # Load all parameters on the top of the stack
+        ce.args.visit(self, True)
         address = ce.declaration.address
+        register = self.__display_register(self.current_level, address.level)
         self.__emit(
             operation=Machine.CALLop,
             length=0,
-            register_n=address.register,
-            displacement=address.displacement
+            register_n=register,
+            displacement=address.displacement + 1  # Skip the JUMPop and execute Command part
         )
+        # If the return value is not needed, remove it from the stack top
+        if not value_needed:
+            self.__emit(
+                operation=Machine.POPop,
+                length=0,
+                register_n=0,
+                displacement=1  # TODO: Make this dynamic
+            )
+        return
 
     def visit_unary_expression(self, be: UnaryExpression, *args) -> object:
         value_needed: bool = args[0]
@@ -178,38 +275,44 @@ class Encoder(Visitor):
                 register_n=Machine.PBr,
                 displacement=Machine.negDisplacement
             )
-        return None
+        return
 
     def visit_int_literal_expression(self, ie: IntLiteralExpression, *args) -> object:
         value_needed: bool = args[0]
-        value: int = ie.literal.visit(self)
+        value: int = ie.literal.visit(self, None)
         if value_needed:
             self.__emit(Machine.LOADLop, 1, 0, value)
         return
 
     def visit_boolean_literal_expression(self, be: BooleanLiteralExpression, *args) -> object:
         value_needed: bool = args[0]
-        value: bool = be.literal.visit(self)
+        value: int = be.literal.visit(self, None)
         if value_needed:
-            self.__emit(Machine.LOADLop, 1, 0, value)
+            self.__emit(
+                operation=Machine.LOADLop,
+                length=1,
+                register_n=0,
+                displacement=value
+            )
         return
 
     def visit_var_expression(self, ve: VarExpression, *args) -> object:
         value_needed: bool = args[0]
         address = ve.declaration.address
-        register = address.level
+        register = self.__display_register(self.current_level, address.level)
+        size: int = ve.declaration.type_indicator.visit(self, None)  # TODO: Size probably in the Address object
         if value_needed:
             self.__emit(
                 operation=Machine.LOADop,
-                length=1,  # TODO: Change this
+                length=size,
                 register_n=register,
                 displacement=address.displacement
             )
         return address
 
     def visit_arguments_list(self, al: ArgumentsList, *args) -> object:
-        for argument in al.expressions:
-            argument.visit(self, True)
+        for expr in al.expressions:
+            expr.visit(self, True)
         return
 
     def visit_identifier(self, i: Identifier, *args) -> object:
@@ -219,7 +322,10 @@ class Encoder(Visitor):
         return int(il.spelling)
 
     def visit_boolean_literal(self, bl: BooleanLiteral, *args) -> object:
-        return bl.spelling
+        return {
+            'true': 1,
+            'false': 0
+        }.get(bl.spelling)
 
     def visit_operator(self, o: Operator, *args) -> object:
         return o.spelling
