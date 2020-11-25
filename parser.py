@@ -33,7 +33,7 @@ class Parser:
     def parse_single_command(self) -> AbstractCommand:
         if self.current_terminal.kind is K.FUNC:
             dec = self.parse_declaration_list()
-            return DeclarationCommand(declaration=dec)
+            return DeclarationCommand(declaration_list=dec)
 
         elif self.current_terminal.kind in [K.RETURN, K.IF, K.WHILE]:
             st = self.parse_single_statement()
@@ -46,8 +46,7 @@ class Parser:
 
         elif self.current_terminal.kind in TYPE_DENOTERS:
             dec = self.parse_declaration_list()
-            self.accept(K.SEMICOLON)
-            return DeclarationCommand(declaration=dec)
+            return DeclarationCommand(declaration_list=dec)
 
         else:
             raise UnsupportedCommandTokenException(
@@ -127,12 +126,14 @@ class Parser:
             if self.current_terminal.kind is K.OPERATOR:
                 opr = self.parse_operator()
                 exp_list = self.parse_expression_list_assign_operator()
+                self.accept(K.SEMICOLON)
                 return VarDeclarationWithAssignment(
                     type_indicator=type_i,
                     identifier=idf,
                     operator=opr,
                     expression=exp_list)
             else:
+                self.accept(K.SEMICOLON)
                 return VarDeclaration(
                     type_indicator=type_i,
                     identifier=idf)
