@@ -1,4 +1,4 @@
-import io
+from typing import BinaryIO
 
 
 class Instruction:
@@ -17,60 +17,16 @@ class Instruction:
         self.length = 0
         self.operand = 0
 
-    def write(self, output: io.TextIOBase) -> None:
-        output.write(str(self.op_code))
-        output.write(str(self.register_number))
-        output.write(str(self.length))
-        output.write(str(self.operand))
+    def write(self, output: BinaryIO) -> None:
+        output.write(self.op_code.to_bytes(4, byteorder='big'))
+        output.write(self.register_number.to_bytes(4, byteorder='big'))
+        output.write(self.length.to_bytes(4, byteorder='big'))
+        output.write(self.operand.to_bytes(4, byteorder='big'))
 
-    def read(self, data_input: io.TextIOBase) -> 'Instruction':
+    def read(self, data_input: BinaryIO) -> 'Instruction':
         inst = Instruction()
         inst.op_code = str(data_input.read())
         inst.register_number = str(data_input.read())
         inst.length = str(data_input.read())
         inst.operand = str(data_input.read())
         return inst
-
-    def __uint_to_bytes(self, x: int) -> bytes:
-        """
-        Converts an unsigned integer to bytes array
-
-        Args:
-            x: an unsigned integer to convert
-
-        Returns: bytes array
-        """
-        return x.to_bytes((x.bit_length() + 7) // 8, 'big')
-
-    def __bytes_to_uint(self, b: bytes) -> int:
-        """
-        Converts bytes array to an unsigned integer
-
-        Args:
-            b: a bytes array to convert
-
-        Returns: an unsigned integer
-        """
-        return int.from_bytes(b, 'big')
-
-    def __int_to_bytes(self, x: int) -> bytes:
-        """
-        Converts a signed integer to bytes array
-
-        Args:
-            x: a signed integer to convert
-
-        Returns: a bytes array
-        """
-        return x.to_bytes((x.bit_length() + 7) // 8, 'big')
-
-    def __bytes_to_int(self, b: bytes) -> int:
-        """
-        Converts bytes array to a signed integer
-
-        Args:
-            b: a bytes array to convert
-
-        Returns: a signed integer
-        """
-        return int.from_bytes(b, 'big')

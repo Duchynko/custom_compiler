@@ -59,34 +59,34 @@ class Machine:
     the stack, then pop the topmost frame, then pop d words of
     arguments, then push the result back on to the stack.
     """
-    PUSHop = 9
+    PUSHop = 10
     """
     PUSH operation.\n Usage: PUSH d\n
     Push d words (uninitialized) on to the stack.
     """
-    POPop = 10
+    POPop = 11
     """
     POP operation.\n Usage: POP(n) d\n
     Pop an n-word result from the stack, then pop d more words,
     then push the result back on to the stack.
     """
-    JUMPop = 11
+    JUMPop = 12
     """
     JUMP operation.\n Usage: JUMP d[r]\n
     Jump to code address (d + register r).
     """
-    JUMPIop = 12
+    JUMPIop = 13
     """
     JUMPI operation.\n Usage: JUMPI\n
     Pop a code address from the stack, then jump to that address.
     """
-    JUMPIFop = 13
+    JUMPIFop = 14
     """
     JUMPIF operation.\n Usage: JUMPIF (n) d[r]\n
     Pop a 1-word value from the stack, then jump to code address
     (d + register r) if and only if the value equals n.
     """
-    HALTop = 14
+    HALTop = 15
     """
     HALT operation.\n Usage: HALT\n
     Stop execution of the program.
