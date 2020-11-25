@@ -11,5 +11,5 @@ class Terminal(AbstractSyntaxTree, metaclass=ABCMeta):
         self.spelling = spelling
 
     @abstractmethod
-    def visit(self, visitor: Visitor) -> object:
+    def visit(self, visitor: Visitor, *args) -> object:
         pass

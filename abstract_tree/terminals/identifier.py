@@ -5,5 +5,5 @@ from ..visitor import Visitor
 
 
 class Identifier(Terminal):
-    def visit(self, visitor: Visitor) -> object:
-        return visitor.visit_identifier(self)
+    def visit(self, visitor: Visitor, *args) -> object:
+        return visitor.visit_identifier(self, *args)

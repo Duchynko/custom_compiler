@@ -5,5 +5,5 @@ from ..visitor import Visitor
 
 
 class Operator(Terminal):
-    def visit(self, visitor: Visitor) -> object:
-        return visitor.visit_operator(self)
+    def visit(self, visitor: Visitor, *args) -> object:
+        return visitor.visit_operator(self, *args)

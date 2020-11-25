@@ -5,5 +5,5 @@ from ..visitor import Visitor
 
 
 class BooleanLiteral(Terminal):
-    def visit(self, visitor: Visitor) -> object:
-        return visitor.visit_boolean_literal(self)
+    def visit(self, visitor: Visitor, *args) -> object:
+        return visitor.visit_boolean_literal(self, *args)

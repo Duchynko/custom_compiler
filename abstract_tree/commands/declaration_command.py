@@ -6,8 +6,8 @@ from ..visitor import Visitor
 
 
 class DeclarationCommand(AbstractCommand):
-    def __init__(self, declaration: DeclarationList):
-        self.declaration = declaration
+    def __init__(self, declaration_list: DeclarationList):
+        self.declaration_list = declaration_list
 
     def visit(self, visitor: Visitor, *args) -> object:
         return visitor.visit_declaration_command(self, *args)

@@ -10,6 +10,7 @@ class CallExpression(AbstractExpression):
     def __init__(self, name: Identifier, args: ArgumentsList):
         self.name = name
         self.args = args
+        self.declaration = None
 
     def visit(self, visitor: Visitor, *args) -> object:
         return visitor.visit_call_expression(self, *args)
