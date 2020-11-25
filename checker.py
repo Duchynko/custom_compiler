@@ -33,19 +33,23 @@ class Checker(Visitor):
 
         return ExpressionType(True)
 
-    def visit_call_expression(self, ce: CallExpression):
-        types: List[ExpressionType] = ce.args.visit()
-        identifier = ce.name.visit(self)
-        declaration = self.idTable.get(identifier)
+    def visit_call_expression(self, ce: CallExpression, *args):
+        func_name: str = ce.name.visit(self)
+        types: List[ExpressionType] = ce.args.visit(self)
+        declaration = self.idTable.get(func_name)
 
-        if declaration:
-            declaration.__class__ = FuncDeclaration
+        if not declaration:
+            raise Exception(f"Function {func_name} is not declared.")
+
+        if isinstance(declaration, FuncDeclaration):
             fd: FuncDeclaration = declaration
-            if len(types) != len(fd.args):
-                raise Exception(f"Function {identifier} expects {len(fd.args)} number of arguments.")
-            return ExpressionType(False)
+            ce.declaration = fd
+            if len(types) != len(fd.args.expressions):
+                raise Exception(f"Function {func_name} expects {len(fd.args.expressions)} number of arguments.")
         else:
-            raise Exception(f"Function {identifier} is not declared.")
+            raise Exception(f"{func_name} is not callable.")
+
+        return ExpressionType(False)
 
     def visit_unary_expression(self, ue: UnaryExpression, *args) -> ExpressionType:
         ue.expression.visit(self)
@@ -98,7 +102,7 @@ class Checker(Visitor):
         return None
 
     def visit_declaration_command(self, dc: DeclarationCommand, *args) -> object:
-        for declaration in dc.declaration.declarations:
+        for declaration in dc.declaration_list.declarations:
             declaration.visit(self, )
         return None
 
@@ -124,14 +128,13 @@ class Checker(Visitor):
         return None
 
     def visit_var_declaration(self, vd: VarDeclaration, *args) -> None:
-        identifier = vd.identifier.visit(self)
+        identifier: str = vd.identifier.visit(self)
 
         self.idTable.insert(identifier=identifier, attr=vd)
         return None
 
-    def visit_var_declaration_with_assignment(
-            self, vd: VarDeclarationWithAssignment, *args) -> object:
-        identifier = vd.identifier.visit(self)
+    def visit_var_declaration_with_assignment(self, vd: VarDeclarationWithAssignment, *args) -> object:
+        identifier: str = vd.identifier.visit(self)
 
         self.idTable.insert(identifier, vd)
         return None
